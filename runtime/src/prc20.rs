@@ -95,7 +95,23 @@ decl_module! {
 			// broadcast a Approval Event 
 			Self::deposit_event(RawEvent::Approval(id, sender, spender, value));
 		}
-		
+		// do transfer from (allowing approver to spend token)(TokenId, From, To, Amount)
+        fn transfer_from(origin,
+            #[compact] id: T::TokenId,
+            from: T::AccountId,
+            to: T::AccountId,
+            #[compact] value: T::TokenBalance
+        ) {
+            let sender = ensure_signed(origin)?;
+            // check allowance
+            let allowance = Self::allowance_of((id, from.clone(), sender.clone()));
+            // check new allowance if transfer is made 
+            let updated_allowance = allowance.checked_sub(&value).ok_or("underflow in calculating allowance")?;
+            // make the transfer 
+            Self::make_transfer(id, from.clone(), to.clone(), value)?;
+            // update the allowance 
+            <Allowance<T>>::insert((id, from, sender), updated_allowance);
+        }
 	
 	}
 }
@@ -105,15 +121,31 @@ decl_event!(
 		AccountId = <T as system::Trait>::AccountId,
 		TokenId = <T as Trait>::TokenId,
 		TokenBalance = <T as Trait>::TokenBalance
-	{
-		// implement 
-	}
+		{
+			// event for a new token creation 
+			NewToken(TokenId, AccountId, TokenBalance),
+			// event for a simple token transfer 
+			Transfer(TokenId, AccountId, AccountId, TokenBalance),
+			// event for approval
+			Approval(TokenId, AccountId, AccountId, TokenBalance),
+		}
+	
 );
 
 impl<T: Trait> Module<T> {
 
 	fn make_transfer(id: T::TokenId, from: T::AccountId, to: T::AccountId, amount: T::TokenBalance) -> Result {
-		// implement 
+		// get balance of account 
+        let from_balance = Self::balance_of((id, from.clone()));
+        // ensure user has enough tokens 
+        ensure!(from_balance >= amount.clone(), "user does not have enough tokens");
+        // modify sender and receiver balance map 
+        <Balances<T>>::insert((id, from.clone()), from_balance - amount.clone());
+        <Balances<T>>::mutate((id, to.clone()), |balance| *balance += amount.clone());
+        // broadcast a transfer event 
+        Self::deposit_event(RawEvent::Transfer(id, from, to, amount));
+
+
 		Ok(())
 	}
 }

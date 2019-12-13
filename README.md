@@ -66,3 +66,12 @@ cargo run -- \
 ```
 
 Additional CLI usage options are available and may be shown by running `cargo run -- --help`.
+
+To use the UI you will need to add the following to the Developer tab in "https://polkadot.js.org/apps/#/settings/developer"
+
+```
+{
+  "TokenBalance": "Balance",
+  "TokenId": "u128"
+}
+```
