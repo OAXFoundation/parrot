@@ -14,7 +14,10 @@ use system::ensure_signed;
 use runtime_primitives::traits::{Member, SimpleArithmetic, Zero, StaticLookup, One,
 	CheckedAdd, CheckedSub, MaybeSerializeDebug,};
 
-use support::codec::{Codec};
+use support::codec::{Codec, Encode, Decode};
+
+
+
 /// The module's configuration trait.
 pub trait Trait: system::Trait {
 	// TODO: Add other types and constants required configure this module.
@@ -27,11 +30,32 @@ pub trait Trait: system::Trait {
 	type TokenId: Parameter + Member + SimpleArithmetic + Codec + Default + Copy + MaybeSerializeDebug;
 }
 
+
+// #[derive(Encode, Decode, Copy, Clone, PartialEq, Eq, Default, Debug)]
+// //#[cfg_attr(feature = "std", derive(Debug))]
+// pub struct Offer<TokenBalance, TokenId>{
+// 	pub offer_token : TokenId,
+// 	pub offer_amount: TokenBalance,
+// 	pub requested_token: TokenId,
+// 	pub requested_amount: TokenBalance
+// }
+
+
+// #[derive(Encode, Decode, Copy, Clone, PartialEq, Eq, Default, Debug)]
+// //#[cfg_attr(feature = "std", derive(Debug))]
+// pub struct SignedOffer<AccountId, TokenBalance, TokenId>{
+// 	// pub offer: Offer<TokenBalance, TokenId>,
+// 	pub offer_token : TokenId,
+// 	pub offer_amount: TokenBalance,
+// 	pub requested_token: TokenId,
+// 	pub requested_amount: TokenBalance,
+// 	pub signer: AccountId 
+// }
+
 /// This module's storage items.
 decl_storage! {
 	trait Store for Module<T: Trait> as PRC20 {
 		// ERC 20 Related Storage Items
-		
 		// total supply Map[TokenId] = TotalSupply 
 		TotalSupply get(total_supply): map T::TokenId => T::TokenBalance;
 		// balance tracker Map[TokenId, AccountId] = Balance
@@ -111,8 +135,26 @@ decl_module! {
             Self::make_transfer(id, from.clone(), to.clone(), value)?;
             // update the allowance 
             <Allowance<T>>::insert((id, from, sender), updated_allowance);
-        }
-	
+		}
+		
+
+	fn swap(origin, offer_token: T::TokenId, offer_amount: T::TokenBalance, requested_token: T::TokenId, requested_amount: T::TokenBalance, signer: T::AccountId
+		)	{
+			 let sender = ensure_signed(origin)?; 		
+
+			//  // Ensure that the SignedOffer is signed correctly 
+			// if Self::verify_offer_signature(signed_offer.clone()).is_ok(){
+			// Ensure that offer amount is non zero 
+			ensure!(!offer_amount.is_zero(), "Offer amount should be non-zero");
+			// Ensure that requested amount is non zero 
+			ensure!(!requested_amount.is_zero(), "Requested amount should be non-zero");
+			// Make the Swap 
+			Self::make_swap(sender, offer_token, offer_amount, requested_token, requested_amount, signer)?;
+			
+			}
+
+ 		
+		 	
 	}
 }
 
@@ -128,6 +170,8 @@ decl_event!(
 			Transfer(TokenId, AccountId, AccountId, TokenBalance),
 			// event for approval
 			Approval(TokenId, AccountId, AccountId, TokenBalance),
+			// event for Swap 
+			Swap(TokenId, TokenBalance, TokenId, TokenBalance, AccountId,AccountId),
 		}
 	
 );
@@ -146,6 +190,27 @@ impl<T: Trait> Module<T> {
         Self::deposit_event(RawEvent::Transfer(id, from, to, amount));
 
 
+		Ok(())
+	}
+	fn make_swap(sender: T::AccountId, offer_token: T::TokenId, offer_amount: T::TokenBalance, requested_token: T::TokenId, requested_amount: T::TokenBalance, signer: T::AccountId) -> Result{
+		// Check from balance of offer creator 
+		let offer_from_balance = Self::balance_of((offer_token, signer.clone())); 
+		// ensure has enough tokens 
+		ensure!(offer_from_balance >= offer_amount, "Offerer does not have enough tokens"); 
+		// Check from balance of requestor 
+		let requested_from_balance = Self::balance_of((requested_token, sender.clone())); 
+		// ensure has enough tokens 
+		ensure!(requested_from_balance >= requested_amount, "Requestor does not have enough tokens");
+
+		// modify sender and receiver balance map 
+		<Balances<T>>::insert((offer_token, signer.clone()), offer_from_balance - offer_amount);
+		<Balances<T>>::mutate((offer_token, sender.clone()), |balance| *balance += offer_amount);
+
+		<Balances<T>>::insert((requested_token, sender.clone()), requested_from_balance - requested_amount);
+		<Balances<T>>::mutate((requested_token, signer.clone()), |balance| *balance += requested_amount);
+
+		Self::deposit_event(RawEvent::Swap(offer_token, offer_amount, requested_token, requested_amount, signer, sender));
+		
 		Ok(())
 	}
 }
@@ -188,6 +253,8 @@ impl<T: Trait> Module<T> {
 // 	}
 // 	impl Trait for Test {
 // 		type Event = ();
+// 		type TokenId = u128;
+// 		type TokenBalance = u128; 
 // 	}
 // 	type PRC20 = Module<Test>;
 
@@ -198,13 +265,13 @@ impl<T: Trait> Module<T> {
 // 	}
 
 // 	#[test]
-// 	fn it_works_for_default_value() {
+// 	fn hello_test() {
 // 		with_externalities(&mut new_test_ext(), || {
 // 			// Just a dummy test for the dummy funtion `do_something`
 // 			// calling the `do_something` function with a value 42
-// 			assert_ok!(PRC20::do_something(Origin::signed(1), 42));
+// 			assert_ok!(PRC20::create_token(Origin::signed(1), 10000));
 // 			// asserting that the stored value is equal to what we stored
-// 			assert_eq!(PRC20::something(), Some(42));
+// 		//	assert_eq!(PRC20::something(), Some(42));
 // 		});
 // 	}
 // }
