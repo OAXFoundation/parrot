@@ -35,6 +35,7 @@ pub struct Offer<TokenBalance, TokenId> {
   pub offer_amount: TokenBalance,
   pub requested_token: TokenId,
   pub requested_amount: TokenBalance,
+  pub nonce: u128 
 }
 
 #[derive(Encode, Decode, Copy, Clone, PartialEq, Eq, Default, Debug)]
@@ -270,7 +271,7 @@ mod tests {
   use super::*;
   //this causes clear_on_drop error	use sp_keyring::AccountKeyring;
   use frame_support::{
-    assert_noop, assert_ok, dispatch, impl_outer_origin, parameter_types, weights::Weight,
+    assert_noop, assert_ok, dispatch, impl_outer_origin, parameter_types, weights::Weight
   };
   use sp_core::H256;
   // use sp_io::misc::print_utf8;
@@ -352,9 +353,6 @@ mod tests {
         .build_storage::<TestRuntime>()
         .unwrap();
 
-      //			let mut storage = system::GenesisConfig::default()
-      //                .build_storage::<Runtime>()
-      //				.unwrap();
 
       balances::GenesisConfig::<TestRuntime> {
         balances: vec![],
@@ -367,6 +365,9 @@ mod tests {
       // runtime_io::TestExternalities::from(storage)
     }
   }
+  fn get_accountid(pair: AccountKeyring) -> AccountId {
+		AccountPublic::from(pair.public()).into_account()
+	}
 
   #[test]
   fn initial_token_count_is_zero() {
@@ -505,5 +506,46 @@ mod tests {
       // Make sure balance is updated correctly
       assert_eq!(PRC20Module::balance_of((0, bob)), 10);
     });
+  }
+
+
+  #[test]
+  fn swap_works(){
+    ExtBuilder::build().execute_with(|| {
+      let alice = AccountId::from(AccountKeyring::Alice);
+      let bob = AccountId::from(AccountKeyring::Bob);
+      // Alice creates token 0 
+      assert_ok!(PRC20Module::create_token(
+        Origin::signed(alice.clone()),
+        10000
+      ));
+      // Bob creates token 1 
+      assert_ok!(PRC20Module::create_token(
+        Origin::signed(bob.clone()),
+        10000
+      ));
+
+      // Now bob creates an offer struct 
+      let offer = Offer{ 
+         offer_token: 1,
+         offer_amount: 100,
+         requested_token: 0,
+         requested_amount: 50,
+         nonce: 1  };
+      
+      let signedOffer = SignedOffer{ 
+        offer: offer.clone(), 
+        signer: bob.clone(),
+        signature: Signature::from(bob.clone().sign(&offer.encode()))};
+        
+
+      assert_ok!(PRC20Module::swap(Origin::signed(alice.clone()), signedOffer));
+
+        //  print_utf8(system::AccountNonce(bob.clone()));
+
+
+
+
+     });
   }
 }
