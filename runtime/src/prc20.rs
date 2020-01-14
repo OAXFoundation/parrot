@@ -265,7 +265,7 @@ impl<T: Trait> Module<T> {
 mod tests {
   use super::*;
   use frame_support::{
-     assert_ok, impl_outer_origin, parameter_types, weights::Weight,
+     assert_ok, impl_outer_origin, parameter_types, weights::Weight, assert_noop
   };
   use node_primitives::{AccountId, Signature};
   use sp_core::H256;
@@ -401,15 +401,15 @@ mod tests {
       assert_eq!(PRC20Module::balance_of((0, bob)), 10);
     });
   }
-  //TODO: find out the correct error type to use in assert_noop!
+  // TODO: fix this 
   // #[test]
   // fn transfer_fails_with_no_balance(){
   //   let alice = AccountId::from(AccountKeyring::Alice);
   //   let bob = AccountId::from(AccountKeyring::Bob);
   // 	// Create Token
   // 	assert_ok!(PRC20Module::create_token(Origin::signed(alice.clone()), 10000));
-  //   // Fails cuz 1 does not have any tokens
-  // 	assert_noop!(PRC20Module::transfer(Origin::signed(alice), bob, 0, 10), "user does not have enough tokens");
+  //   // Fails cuz bob does not have any tokens
+  // 	assert_noop!(PRC20Module::transfer(Origin::signed(bob), alice, 0, 10), "user does not have enough tokens");
   // }
 
   #[test]
@@ -537,6 +537,55 @@ mod tests {
       assert_eq!(PRC20Module::balance_of((0, alice.clone())), 9950);
       // Alice has 100 token 1
       assert_eq!(PRC20Module::balance_of((1, alice)), 100);
+      // TODO: check bob nonce has increased 
+      // assert_eq!( TestRuntime::check_nonce(&bob), 2);
+    });
+  }
+  #[test]
+  fn swap_fails() {
+    ExtBuilder::build().execute_with(|| {
+      // get account id for alice and bob 
+      let alice= AccountId::from(AccountKeyring::Alice);
+      let bob = AccountId::from(AccountKeyring::Bob);
+      // get account keyring for Bob 
+      let bob_keyring =AccountKeyring::Bob;
+
+  
+      // Alice creates token 0
+      assert_ok!(PRC20Module::create_token(
+        Origin::signed(alice.clone()),
+        10000
+      ));
+      // Bob creates token 1
+      assert_ok!(PRC20Module::create_token(
+        Origin::signed(bob.clone()),
+        10000
+      ));
+
+      // Now bob creates an offer struct
+      let offer = Offer {
+        offer_token: 0,
+        offer_amount: 100,
+        requested_token: 1,
+        requested_amount: 50,
+        nonce: 1,
+      };
+      // bob signs this using bob_keyring to create a signed_offer
+      let signed_offer = SignedOffer {
+        offer: offer.clone(),
+        signer: bob.clone(),
+        signature: Signature::from(bob_keyring.sign(&offer.encode())),
+      };
+      // make sure swap is ok 
+      assert_noop!(PRC20Module::swap(Origin::signed(alice.clone()),signed_offer), "Offerer does not have enough tokens");
+      // Bob has 0 token 0 
+      assert_eq!(PRC20Module::balance_of((0, bob.clone())), 0);
+      // Bob has 9900 token 1
+      assert_eq!(PRC20Module::balance_of((1, bob)), 10000);
+      // Alice has 9950 token 0
+      assert_eq!(PRC20Module::balance_of((0, alice.clone())), 10000);
+      // Alice has 100 token 1
+      assert_eq!(PRC20Module::balance_of((1, alice)), 0);
     });
   }
 }
