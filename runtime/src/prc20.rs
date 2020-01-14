@@ -12,6 +12,7 @@ use sp_runtime::traits::{
   Zero,
 };
 use system::ensure_signed;
+//use system::inc_account_nonce;
 
 use codec::{Codec, Decode, Encode};
 use sp_io::misc::print_utf8;
@@ -24,25 +25,25 @@ pub trait Trait: system::Trait + balances::Trait {
   type TokenBalance: Parameter + Member + SimpleArithmetic + Codec + Default + Copy;
   type TokenId: Parameter + Member + SimpleArithmetic + Codec + Default + Copy;
 
-  // type Public: IdentifyAccount<AccountId = Self::AccountId>;
-  // type Signature: Verify<Signer = Self::Public> + Member + Decode + Encode;
+  type Public: IdentifyAccount<AccountId = Self::AccountId>;
+  type Signature: Verify<Signer = Self::Public> + Member + Decode + Encode;
 }
-// #[derive(Encode, Decode, Copy, Clone, PartialEq, Eq, Default, Debug)]
-// //#[cfg_attr(feature = "std", derive(Debug))]
-// pub struct Offer<TokenBalance, TokenId>{
-// 	pub offer_token : TokenId,
-// 	pub offer_amount: TokenBalance,
-// 	pub requested_token: TokenId,
-// 	pub requested_amount: TokenBalance
-// }
+#[derive(Encode, Decode, Copy, Clone, PartialEq, Eq, Default, Debug)]
+//#[cfg_attr(feature = "std", derive(Debug))]
+pub struct Offer<TokenBalance, TokenId> {
+  pub offer_token: TokenId,
+  pub offer_amount: TokenBalance,
+  pub requested_token: TokenId,
+  pub requested_amount: TokenBalance,
+}
 
-// #[derive(Encode, Decode, Copy, Clone, PartialEq, Eq, Default, Debug)]
-// //#[cfg_attr(feature = "std", derive(Debug))]
-// pub struct SignedOffer<Signature,AccountId, TokenBalance, TokenId>{
-// 	pub offer: Offer<TokenBalance, TokenId>,
-// 	pub signature: Signature,
-// 	pub signer: AccountId
-// }
+#[derive(Encode, Decode, Copy, Clone, PartialEq, Eq, Default, Debug)]
+//#[cfg_attr(feature = "std", derive(Debug))]
+pub struct SignedOffer<Signature, AccountId, TokenBalance, TokenId> {
+  pub offer: Offer<TokenBalance, TokenId>,
+  pub signature: Signature,
+  pub signer: AccountId,
+}
 
 // This module's storage items.
 decl_storage! {
@@ -83,8 +84,8 @@ decl_module! {
     }
         // do transfers like erc20 ( TokenId, To, Amount)
     fn transfer(origin,
-      #[compact] id: T::TokenId,
       to: <T::Lookup as StaticLookup>::Source,
+      #[compact] id: T::TokenId,
       #[compact] amount: T::TokenBalance
     )
     {
@@ -98,8 +99,8 @@ decl_module! {
     }
     // do approval like erc20 (TokenId, To, Amount)
     fn approve(origin,
-      #[compact] id: T::TokenId,
       spender: <T::Lookup as StaticLookup>::Source,
+      #[compact] id: T::TokenId,
       #[compact] value: T::TokenBalance
     ) {
       let sender = ensure_signed(origin)?;
@@ -111,9 +112,9 @@ decl_module! {
     }
     // do transfer from (allowing approver to spend token)(TokenId, From, To, Amount)
         fn transfer_from(origin,
+          from: T::AccountId,
+          to: T::AccountId,
             #[compact] id: T::TokenId,
-            from: T::AccountId,
-            to: T::AccountId,
             #[compact] value: T::TokenBalance
         ) {
             let sender = ensure_signed(origin)?;
@@ -127,24 +128,24 @@ decl_module! {
             <Allowance<T>>::insert((id, from, sender), updated_allowance);
     }
 
-    // fn swap(origin, signed_offer:  SignedOffer<T::Signature,T::AccountId, T::TokenBalance, T::TokenId>
-    // )	{
-    // 	 let sender = ensure_signed(origin)?;
+    fn swap(origin, signed_offer:  SignedOffer<T::Signature,T::AccountId, T::TokenBalance, T::TokenId>
+    )	{
+       let sender = ensure_signed(origin)?;
 
-    // 	 // Ensure that the SignedOffer is signed correctly
-    // 	if Self::verify_offer_signature(signed_offer.clone()).is_ok(){
-    // 		print_utf8(b"Signature is a match! Lets trade!");
-    // 		// Ensure that offer amount is non zero
-    // 		ensure!(!signed_offer.offer.offer_amount.is_zero(), "Offer amount should be non-zero");
-    // 		// Ensure that requested amount is non zero
-    // 		ensure!(!signed_offer.offer.requested_amount.is_zero(), "Requested amount should be non-zero");
-    // 		// Make the Swap
-    // 		Self::make_swap(sender, signed_offer)?;
+       // Ensure that the SignedOffer is signed correctly
+      if Self::verify_offer_signature(signed_offer.clone()).is_ok(){
+        print_utf8(b"Signature is a match! Lets trade!");
+        // Ensure that offer amount is non zero
+        ensure!(!signed_offer.offer.offer_amount.is_zero(), "Offer amount should be non-zero");
+        // Ensure that requested amount is non zero
+        ensure!(!signed_offer.offer.requested_amount.is_zero(), "Requested amount should be non-zero");
+        // Make the Swap
+        Self::make_swap(sender, signed_offer)?;
 
-    // 	};
+      };
 
 
-    //  	}
+       }
 
 
   }
@@ -164,14 +165,14 @@ decl_event!(
     // event for approval
     Approval(TokenId, AccountId, AccountId, TokenBalance),
     // event for Swap
-    // Swap(
-    //   TokenId,
-    //   TokenBalance,
-    //   TokenId,
-    //   TokenBalance,
-    //   AccountId,
-    //   AccountId,
-    // ),
+    Swap(
+      TokenId,
+      TokenBalance,
+      TokenId,
+      TokenBalance,
+      AccountId,
+      AccountId
+    ),
   }
 );
 
@@ -195,34 +196,72 @@ impl<T: Trait> Module<T> {
     Ok(())
   }
 
-  // fn make_swap(sender: T::AccountId, signed_offer: SignedOffer<T::Signature,T::AccountId, T::TokenBalance, T::TokenId>) -> dispatch::DispatchResult{
-  // 	// Check from balance of offer creator
-  // 	let offer_from_balance = Self::balance_of((signed_offer.offer.offer_token, signed_offer.signer.clone()));
-  // 	// ensure has enough tokens
-  // 	ensure!(offer_from_balance >= signed_offer.offer.offer_amount, "Offerer does not have enough tokens");
-  // 	// Check from balance of requestor
-  // 	let requested_from_balance = Self::balance_of((signed_offer.offer.requested_token, sender.clone()));
-  // 	// ensure has enough tokens
-  // 	ensure!(requested_from_balance >= signed_offer.offer.requested_amount, "Requestor does not have enough tokens");
+  fn make_swap(
+    sender: T::AccountId,
+    signed_offer: SignedOffer<T::Signature, T::AccountId, T::TokenBalance, T::TokenId>,
+  ) -> dispatch::DispatchResult {
+    // Check from balance of offer creator
+    let offer_from_balance =
+      Self::balance_of((signed_offer.offer.offer_token, signed_offer.signer.clone()));
+    // ensure has enough tokens
+    ensure!(
+      offer_from_balance >= signed_offer.offer.offer_amount,
+      "Offerer does not have enough tokens"
+    );
+    // Check from balance of requestor
+    let requested_from_balance =
+      Self::balance_of((signed_offer.offer.requested_token, sender.clone()));
+    // ensure has enough tokens
+    ensure!(
+      requested_from_balance >= signed_offer.offer.requested_amount,
+      "Requestor does not have enough tokens"
+    );
 
-  // 	// modify sender and receiver balance map
-  // 	<Balances<T>>::insert((signed_offer.offer.offer_token, signed_offer.signer.clone()), offer_from_balance - signed_offer.offer.offer_amount);
-  // 	<Balances<T>>::mutate((signed_offer.offer.offer_token, sender.clone()), |balance| *balance += signed_offer.offer.offer_amount);
+    // modify sender and receiver balance map
+    <Balances<T>>::insert(
+      (signed_offer.offer.offer_token, signed_offer.signer.clone()),
+      offer_from_balance - signed_offer.offer.offer_amount,
+    );
+    <Balances<T>>::mutate(
+      (signed_offer.offer.offer_token, sender.clone()),
+      |balance| *balance += signed_offer.offer.offer_amount,
+    );
 
-  // 	<Balances<T>>::insert((signed_offer.offer.requested_token, sender.clone()), requested_from_balance - signed_offer.offer.requested_amount);
-  // 	<Balances<T>>::mutate((signed_offer.offer.requested_token, signed_offer.signer.clone()), |balance| *balance += signed_offer.offer.requested_amount);
+    <Balances<T>>::insert(
+      (signed_offer.offer.requested_token, sender.clone()),
+      requested_from_balance - signed_offer.offer.requested_amount,
+    );
+    <Balances<T>>::mutate(
+      (
+        signed_offer.offer.requested_token,
+        signed_offer.signer.clone(),
+      ),
+      |balance| *balance += signed_offer.offer.requested_amount,
+    );
+    // prc20::inc_account_nonce(signed_offer.signer.clone());
+    Self::deposit_event(RawEvent::Swap(
+      signed_offer.offer.offer_token,
+      signed_offer.offer.offer_amount,
+      signed_offer.offer.requested_token,
+      signed_offer.offer.requested_amount,
+      signed_offer.signer,
+      sender,
+    ));
 
-  // 	Self::deposit_event(RawEvent::Swap(signed_offer.offer.offer_token, signed_offer.offer.offer_amount, signed_offer.offer.requested_token, signed_offer.offer.requested_amount, signed_offer.signer, sender));
+    Ok(())
+  }
 
-  // 	Ok(())
-  // }
-
-  // fn verify_offer_signature(signed_offer:  SignedOffer<T::Signature,T::AccountId, T::TokenBalance, T::TokenId>)-> Result<(), &'static str> {
-  // 	match signed_offer.signature.verify(&signed_offer.offer.encode()[..], &signed_offer.signer){
-  // 		true => Ok(()),
-  // 		false => Err("signature is invalid"),
-  // 	}
-  // }
+  fn verify_offer_signature(
+    signed_offer: SignedOffer<T::Signature, T::AccountId, T::TokenBalance, T::TokenId>,
+  ) -> Result<(), &'static str> {
+    match signed_offer
+      .signature
+      .verify(&signed_offer.offer.encode()[..], &signed_offer.signer)
+    {
+      true => Ok(()),
+      false => Err("signature is invalid"),
+    }
+  }
 }
 
 // tests for this module
@@ -234,14 +273,15 @@ mod tests {
     assert_noop, assert_ok, dispatch, impl_outer_origin, parameter_types, weights::Weight,
   };
   use sp_core::H256;
-  use sp_io::misc::print_utf8;
-  use sp_runtime::AccountId32;
+  // use sp_io::misc::print_utf8;
+  // use sp_runtime::AccountId32;
+  use node_primitives::{AccountId, Signature};
   use sp_runtime::{
     testing::Header,
     traits::{BlakeTwo256, IdentityLookup},
     MultiSignature, Perbill,
   };
-
+  use test_client::{self, AccountKeyring};
   impl_outer_origin! {
     pub enum Origin for TestRuntime {}
   }
@@ -264,7 +304,7 @@ mod tests {
     type BlockNumber = u64;
     type Hash = H256;
     type Hashing = BlakeTwo256;
-    type AccountId = u64;
+    type AccountId = AccountId;
     type Lookup = IdentityLookup<Self::AccountId>;
     type Header = Header;
     type Event = ();
@@ -280,8 +320,8 @@ mod tests {
     type Event = ();
     type TokenBalance = u128;
     type TokenId = u128;
-    // type Public = <MultiSignature as Verify>::Signer;
-    // type Signature = MultiSignature;
+    type Public = <MultiSignature as Verify>::Signer;
+    type Signature = MultiSignature;
   }
 
   pub type PRC20Module = Module<TestRuntime>;
@@ -304,7 +344,8 @@ mod tests {
     type TransferFee = TransferFee;
     type CreationFee = CreationFee;
   }
-
+  pub type Balances = balances::Module<TestRuntime>;
+  type AccountPublic = <Signature as Verify>::Signer;
   impl ExtBuilder {
     pub fn build() -> sp_io::TestExternalities {
       let mut t = system::GenesisConfig::default()
@@ -336,82 +377,133 @@ mod tests {
   #[test]
   fn create_token_works() {
     ExtBuilder::build().execute_with(|| {
+      let alice = AccountId::from(AccountKeyring::Alice);
       // Make sure token count is 0
       assert_eq!(PRC20Module::token_count(), 0);
       // Create Token
-      assert_ok!(PRC20Module::create_token(Origin::signed(0), 10000));
+      assert_ok!(PRC20Module::create_token(
+        Origin::signed(alice.clone()),
+        10000
+      ));
       // Make sure token count is now 1
       assert_eq!(PRC20Module::token_count(), 1);
       // Make sure the creator has 10000 tokens
-      assert_eq!(PRC20Module::balance_of((0, 0)), 10000);
+      assert_eq!(PRC20Module::balance_of((0, alice)), 10000);
     });
   }
 
   #[test]
   fn transfer_token_works() {
     ExtBuilder::build().execute_with(|| {
+      let alice = AccountId::from(AccountKeyring::Alice);
+      let bob = AccountId::from(AccountKeyring::Bob);
       // Create Token
-      assert_ok!(PRC20Module::create_token(Origin::signed(0), 10000));
+      assert_ok!(PRC20Module::create_token(
+        Origin::signed(alice.clone()),
+        10000
+      ));
       // Make sure the creator has 10000 tokens
-      assert_eq!(PRC20Module::balance_of((0, 0)), 10000);
+      assert_eq!(PRC20Module::balance_of((0, alice.clone())), 10000);
       // Make sure reciever has 0 tokens
-      assert_eq!(PRC20Module::balance_of((0, 1)), 0);
+      assert_eq!(PRC20Module::balance_of((0, bob.clone())), 0);
       // make sure transfer goes ok and transfer
-      assert_ok!(PRC20Module::transfer(Origin::signed(0), 0, 1, 10));
+      assert_ok!(PRC20Module::transfer(
+        Origin::signed(alice.clone()),
+        bob.clone(),
+        0,
+        10
+      ));
       // make sure reciever balance is 10
-      assert_eq!(PRC20Module::balance_of((0, 1)), 10);
+      assert_eq!(PRC20Module::balance_of((0, bob)), 10);
     });
   }
   // #[test]
   // fn transfer_fails_with_no_balance(){
+  //   let alice = AccountId::from(AccountKeyring::Alice);
+
   // 	// Create Token
-  // 	assert_ok!(PRC20Module::create_token(Origin::signed(0), 10000));
+  // 	assert_ok!(PRC20Module::create_token(Origin::signed(alice.clone()), 10000));
   // 	// Fails cuz 1 does not have any tokens
-  // 	assert_noop!(PRC20Module::transfer(Origin::signed(1), 0, 0, 10), "user does not have enough tokens");
+  // 	assert_noop!(PRC20Module::transfer(Origin::signed(alice), 0, 0, 10), "user does not have enough tokens");
   // }
 
   #[test]
   fn approve_token_works() {
     ExtBuilder::build().execute_with(|| {
+      let alice = AccountId::from(AccountKeyring::Alice);
+      let bob = AccountId::from(AccountKeyring::Bob);
       // Make sure token count is 0
       assert_eq!(PRC20Module::token_count(), 0);
       // Create Token
-      assert_ok!(PRC20Module::create_token(Origin::signed(0), 10000));
+      assert_ok!(PRC20Module::create_token(
+        Origin::signed(alice.clone()),
+        10000
+      ));
       // Make sure token count is now 1
       assert_eq!(PRC20Module::token_count(), 1);
       // Make sure the creator has 10000 tokens
-      assert_eq!(PRC20Module::balance_of((0, 0)), 10000);
+      assert_eq!(PRC20Module::balance_of((0, alice.clone())), 10000);
 
       // Maybe make sure initial approval is 0
-      assert_eq!(PRC20Module::allowance_of((0, 0, 1)), 0);
+      assert_eq!(
+        PRC20Module::allowance_of((0, alice.clone(), bob.clone())),
+        0
+      );
       // Approve account 1 to use 10 tokens from account 0
-      assert_ok!(PRC20Module::approve(Origin::signed(0), 0, 1, 10));
+      assert_ok!(PRC20Module::approve(
+        Origin::signed(alice.clone()),
+        bob.clone(),
+        0,
+        10
+      ));
       // Maybe make sure current approval is 10
-      assert_eq!(PRC20Module::allowance_of((0, 0, 1)), 10);
+      assert_eq!(PRC20Module::allowance_of((0, alice, bob)), 10);
     });
   }
 
   #[test]
   fn transfer_from_works() {
     ExtBuilder::build().execute_with(|| {
+      let alice = AccountId::from(AccountKeyring::Alice);
+      let bob = AccountId::from(AccountKeyring::Bob);
       // Make sure token count is 0
       assert_eq!(PRC20Module::token_count(), 0);
       // Create Token
-      assert_ok!(PRC20Module::create_token(Origin::signed(0), 10000));
+      assert_ok!(PRC20Module::create_token(
+        Origin::signed(alice.clone()),
+        10000
+      ));
       // Make sure token count is now 1
       assert_eq!(PRC20Module::token_count(), 1);
       // Make sure the creator has 10000 tokens
-      assert_eq!(PRC20Module::balance_of((0, 0)), 10000);
+      assert_eq!(PRC20Module::balance_of((0, alice.clone())), 10000);
       // Maybe make sure initial approval is 0
-      assert_eq!(PRC20Module::allowance_of((0, 0, 1)), 0);
+      assert_eq!(
+        PRC20Module::allowance_of((0, alice.clone(), bob.clone())),
+        0
+      );
       // Approve account 1 to use 10 tokens from account 0
-      assert_ok!(PRC20Module::approve(Origin::signed(0), 0, 1, 10));
+      assert_ok!(PRC20Module::approve(
+        Origin::signed(alice.clone()),
+        bob.clone(),
+        0,
+        10
+      ));
       // Maybe make sure current approval is 10
-      assert_eq!(PRC20Module::allowance_of((0, 0, 1)), 10);
+      assert_eq!(
+        PRC20Module::allowance_of((0, alice.clone(), bob.clone())),
+        10
+      );
       // Now lets use transfer_from
-      assert_ok!(PRC20Module::transfer_from(Origin::signed(1), 0, 0, 1, 10));
+      assert_ok!(PRC20Module::transfer_from(
+        Origin::signed(bob.clone()),
+        alice.clone(),
+        bob.clone(),
+        0,
+        10
+      ));
       // Make sure balance is updated correctly
-      assert_eq!(PRC20Module::balance_of((0, 1)), 10);
+      assert_eq!(PRC20Module::balance_of((0, bob)), 10);
     });
   }
 }

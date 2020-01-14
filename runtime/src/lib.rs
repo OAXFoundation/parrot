@@ -242,8 +242,8 @@ impl prc20::Trait for Runtime {
 	type Event = Event;
 	type TokenBalance = u128;
 	type TokenId = u128;
-	// type Public = <MultiSignature as Verify>::Signer;
-	// type Signature = MultiSignature;
+	type Public = <MultiSignature as Verify>::Signer;
+	type Signature = MultiSignature;
 }
 
 construct_runtime!(
