@@ -100,3 +100,30 @@ git checkout <branch/tag/sha1>
 
 Noted though you will likely get faster and more thorough support if you stick with the releases
 provided in this repository.
+
+
+# UI 
+
+Please enter developer tab and paste the following JSON 
+
+```
+{
+  "TokenBalance": "u128",
+  "TokenId": "u128",
+  "Public": "AccountId",
+  "Signature": "H512",
+  "Offer": {
+    "offer_token": "TokenId",
+    "offer_amount": "TokenBalance",
+    "requested_token": "TokenId",
+    "requested_amount": "TokenBalance",
+    "nonce": "u128"
+  },
+  "SignedOffer": {
+    "offer": "Offer",
+    "signature": "H512",
+    "signer": "AccountId"
+  }
+}
+
+```

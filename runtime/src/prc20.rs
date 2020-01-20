@@ -6,25 +6,23 @@
 
 /// For more guidance on Substrate modules, see the example module
 /// https://github.com/paritytech/substrate/blob/master/frame/example/src/lib.rs
+
 use frame_support::{decl_event, decl_module, decl_storage, dispatch, ensure, Parameter};
 use sp_runtime::traits::{
   CheckedAdd, CheckedSub, IdentifyAccount, Member, One, SimpleArithmetic, StaticLookup, Verify,
   Zero,
 };
 use system::ensure_signed;
-//use system::inc_account_nonce;
-
+use sp_std::{if_std, convert::{TryInto}};
 use codec::{Codec, Decode, Encode};
-use sp_io::misc::print_utf8;
+
+
 /// The module's configuration trait.
 pub trait Trait: system::Trait + balances::Trait {
-  // TODO: Add other types and constants required configure this module.
-
   /// The overarching event type.
   type Event: From<Event<Self>> + Into<<Self as system::Trait>::Event>;
   type TokenBalance: Parameter + Member + SimpleArithmetic + Codec + Default + Copy;
   type TokenId: Parameter + Member + SimpleArithmetic + Codec + Default + Copy;
-
   type Public: IdentifyAccount<AccountId = Self::AccountId>;
   type Signature: Verify<Signer = Self::Public> + Member + Decode + Encode;
 }
@@ -135,20 +133,15 @@ decl_module! {
 
        // Ensure that the SignedOffer is signed correctly
       if Self::verify_offer_signature(signed_offer.clone()).is_ok(){
-        print_utf8(b"Signature is a match! Lets trade!");
+        if_std! {println!("Signature is a match! Lets trade!");};
         // Ensure that offer amount is non zero
         ensure!(!signed_offer.offer.offer_amount.is_zero(), "Offer amount should be non-zero");
         // Ensure that requested amount is non zero
         ensure!(!signed_offer.offer.requested_amount.is_zero(), "Requested amount should be non-zero");
         // Make the Swap
         Self::make_swap(sender, signed_offer)?;
-
       };
-
-
        }
-
-
   }
 }
 
@@ -185,8 +178,7 @@ impl<T: Trait> Module<T> {
     <Balances<T>>::insert((id, from.clone()), from_balance - amount);
     <Balances<T>>::mutate((id, to.clone()), |balance| *balance += amount);
     // broadcast a transfer event
-    Self::deposit_event(RawEvent::Transfer(id, from, to, amount));
-
+    Self::deposit_event(RawEvent::Transfer(id, from.clone(), to, amount));
     Ok(())
   }
 
@@ -210,7 +202,15 @@ impl<T: Trait> Module<T> {
       requested_from_balance >= signed_offer.offer.requested_amount,
       "Requestor does not have enough tokens"
     );
-
+    // get maker nonce
+    let maker_nonce: u128 = TryInto::<u128>::try_into(<system::Module<T>>::account_nonce(&signed_offer.signer)).map_err(|_| "error")?;
+    // let taker_nonce: u128 =  TryInto::<u128>::try_into(<system::Module<T>>::account_nonce(&sender)).map_err(|_| "error")?;
+    if_std! {println!("Maker Nonce: {:?}", maker_nonce.clone());
+            //  println!("Taker Nonce: {:?}", taker_nonce);
+             println!("Signed Offer Nonce: {:?}", signed_offer.offer.nonce.clone());
+            }
+    // ensure maker nonce is correct (replay protection)
+    ensure!(   maker_nonce == signed_offer.offer.nonce , "Nonce is incorrect!");
     // modify sender and receiver balance map
     <Balances<T>>::insert(
       (signed_offer.offer.offer_token, signed_offer.signer.clone()),
@@ -274,6 +274,8 @@ mod tests {
     traits::{BlakeTwo256, IdentityLookup},
     MultiSignature, Perbill,
   };
+
+
   use test_client::{self, AccountKeyring};
   impl_outer_origin! {
     pub enum Origin for TestRuntime {}
@@ -519,7 +521,7 @@ mod tests {
         offer_amount: 100,
         requested_token: 0,
         requested_amount: 50,
-        nonce: 1,
+        nonce: 0, // nonce is 0 cuz in tests, nonce doesn't increment 
       };
       // bob signs this using bob_keyring to create a signed_offer
       let signed_offer = SignedOffer {
@@ -542,15 +544,13 @@ mod tests {
     });
   }
   #[test]
-  fn swap_fails() {
+  fn swap_fails_not_enough_balance() {
     ExtBuilder::build().execute_with(|| {
       // get account id for alice and bob 
       let alice= AccountId::from(AccountKeyring::Alice);
       let bob = AccountId::from(AccountKeyring::Bob);
       // get account keyring for Bob 
       let bob_keyring =AccountKeyring::Bob;
-
-  
       // Alice creates token 0
       assert_ok!(PRC20Module::create_token(
         Origin::signed(alice.clone()),
@@ -562,13 +562,13 @@ mod tests {
         10000
       ));
 
-      // Now bob creates an offer struct
+      // Now bob creates an offer struct (invalid since Bob owns token 1 and not 0)
       let offer = Offer {
         offer_token: 0,
         offer_amount: 100,
         requested_token: 1,
         requested_amount: 50,
-        nonce: 1,
+        nonce: 0,
       };
       // bob signs this using bob_keyring to create a signed_offer
       let signed_offer = SignedOffer {
@@ -576,7 +576,7 @@ mod tests {
         signer: bob.clone(),
         signature: Signature::from(bob_keyring.sign(&offer.encode())),
       };
-      // make sure swap is ok 
+      // make sure swap fails
       assert_noop!(PRC20Module::swap(Origin::signed(alice.clone()),signed_offer), "Offerer does not have enough tokens");
       // Bob has 0 token 0 
       assert_eq!(PRC20Module::balance_of((0, bob.clone())), 0);
@@ -586,6 +586,48 @@ mod tests {
       assert_eq!(PRC20Module::balance_of((0, alice.clone())), 10000);
       // Alice has 100 token 1
       assert_eq!(PRC20Module::balance_of((1, alice)), 0);
+      
     });
   }
+  #[test]
+  fn swap_fails_wrong_nonce() {
+    ExtBuilder::build().execute_with(|| {
+      // get account id for alice and bob 
+      let alice= AccountId::from(AccountKeyring::Alice);
+      let bob = AccountId::from(AccountKeyring::Bob);
+      // get account keyring for Bob 
+      let bob_keyring =AccountKeyring::Bob;
+      // Alice creates token 0
+      assert_ok!(PRC20Module::create_token(
+        Origin::signed(alice.clone()),
+        10000
+      ));
+      // Bob creates token 1
+      assert_ok!(PRC20Module::create_token(
+        Origin::signed(bob.clone()),
+        10000
+      ));
+      // Now bob creates an offer struct with wrong nonce 
+      let offer = Offer {
+        offer_token: 1,
+        offer_amount: 100,
+        requested_token: 0,
+        requested_amount: 50,
+        nonce: 2, // should be 0 (nonce doesn't increment in tests)
+      };
+      // bob signs this using bob_keyring to create a signed_offer
+      let signed_offer = SignedOffer {
+        offer: offer.clone(),
+        signer: bob.clone(),
+        signature: Signature::from(bob_keyring.sign(&offer.encode())),
+      };
+      // make sure swap is ok 
+      assert_noop!(PRC20Module::swap(Origin::signed(alice.clone()),signed_offer), "Nonce is incorrect!");
+      // Bob has 10000 token 1 
+      assert_eq!(PRC20Module::balance_of((1, bob.clone())), 10000);
+      // Alice has 100 token 1
+      assert_eq!(PRC20Module::balance_of((0, alice)), 10000);
+    });
+  }
+
 }
