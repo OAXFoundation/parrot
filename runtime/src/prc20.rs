@@ -15,6 +15,7 @@ use sp_runtime::traits::{
 use system::ensure_signed;
 use sp_std::{if_std, convert::{TryInto}};
 use codec::{Codec, Decode, Encode};
+use sp_std::vec::Vec;
 
 
 /// The module's configuration trait.
@@ -42,6 +43,12 @@ pub struct SignedOffer<Signature, AccountId, TokenBalance, TokenId> {
   pub offer: Offer<TokenBalance, TokenId>,
   pub signature: Signature,
   pub signer: AccountId,
+}
+#[derive(Encode, Decode, Copy, Clone, PartialEq, Eq, Default, Debug)]
+//#[cfg_attr(feature = "std", derive(Debug))]
+pub struct TransferDetails< AccountId, TokenBalance> {
+  pub amount: TokenBalance,
+  pub to: AccountId,
 }
 
 // This module's storage items.
@@ -130,7 +137,6 @@ decl_module! {
     fn swap(origin, signed_offer:  SignedOffer<T::Signature,T::AccountId, T::TokenBalance, T::TokenId>
     )	{
        let sender = ensure_signed(origin)?;
-
        // Ensure that the SignedOffer is signed correctly
       if Self::verify_offer_signature(signed_offer.clone()).is_ok(){
         if_std! {println!("Signature is a match! Lets trade!");};
@@ -142,6 +148,25 @@ decl_module! {
         Self::make_swap(sender, signed_offer)?;
       };
        }
+
+     fn multi_transfer(origin, #[compact] id: T::TokenId, td_vec: Vec<TransferDetails<T::AccountId, T::TokenBalance>>){
+     // eval: Vec<T::TransferDetails<T::AccountId, T::TokenBalance>>
+        let sender = ensure_signed(origin)?;
+        if_std!{println!("Multi transfer {:#?}", sender);};
+        let num_transfers = td_vec.len();
+        for i in 0..num_transfers{
+            if_std!{println!("{:#?}", &td_vec[i])};
+
+          // ensure sending amount is not zero or warn
+          ensure!(!&td_vec[i].amount.is_zero(), "transfer amount should be non-zero");
+          // make the transfer
+          Self::make_transfer(id, sender.clone(), td_vec[i].to.clone(), td_vec[i].amount.clone())?;
+        }
+//        let tuple_len = eval.len();
+//        for val in 0..tuple_len{
+//          if_std!{println!("{:#?}", val);}
+//        }
+     }
   }
 }
 
@@ -629,5 +654,79 @@ mod tests {
       assert_eq!(PRC20Module::balance_of((0, alice)), 10000);
     });
   }
+  #[test]
+  fn multi_transfer_works() {
+    ExtBuilder::build().execute_with(|| {
+      // get account id for alice and bob
+      let alice= AccountId::from(AccountKeyring::Alice);
+      let bob = AccountId::from(AccountKeyring::Bob);
+      let charlie = AccountId::from(AccountKeyring::Charlie);
+      // Alice creates token 0
+      assert_ok!(PRC20Module::create_token(
+        Origin::signed(alice.clone()),
+        10000
+      ));
+      // create first transfer details struct
+      let first_transfer = TransferDetails{
+        amount: 5,
+        to: bob.clone(),
+      };
+      // create second transfer details struct
+      let second_transfer = TransferDetails{
+        amount: 5,
+        to: charlie.clone(),
+      };
+      // Create a vector of these transfer details struct
+      let transfer_vec = vec![first_transfer, second_transfer];
+      // do a multi transfer from alice's account
+      assert_ok!(PRC20Module::multi_transfer(
+        Origin::signed(alice.clone()),
+        0, transfer_vec
+      ));
+      // Bob has 5 token 0
+      assert_eq!(PRC20Module::balance_of((0, bob)), 5);
+      // Charlie has 5 token 0
+      assert_eq!(PRC20Module::balance_of((0, charlie)), 5);
+      // Alice has 9990 token 0
+      assert_eq!(PRC20Module::balance_of((0, alice)), 9990);
+    });
+  }
+  #[test]
+  fn multi_transfer_fails_sequentially() {
+    // this basically means if the user does not have enough balances for all transfers, the first transfers in the vec have priority and go through
+    ExtBuilder::build().execute_with(|| {
+      // get account id for alice and bob
+      let alice= AccountId::from(AccountKeyring::Alice);
+      let bob = AccountId::from(AccountKeyring::Bob);
+      let charlie = AccountId::from(AccountKeyring::Charlie);
+      // Alice creates token 0
+      assert_ok!(PRC20Module::create_token(
+        Origin::signed(alice.clone()),
+        10000
+      ));
+      // create first transfer details struct
+      let first_transfer = TransferDetails{
+        amount: 10000,
+        to: bob.clone(),
+      };
+      // create second transfer details struct
+      let second_transfer = TransferDetails{
+        amount: 5,
+        to: charlie.clone(),
+      };
+      // Create a vector of these transfer details struct
+      let transfer_vec = vec![first_transfer, second_transfer];
 
+      let _partial_transfer_result = PRC20Module::multi_transfer(
+        Origin::signed(alice.clone()),
+        0, transfer_vec
+      );
+      // Bob has 10000 token 0
+      assert_eq!(PRC20Module::balance_of((0, bob)), 10000);
+      // Alice has 0 token 0
+      assert_eq!(PRC20Module::balance_of((0, alice)), 0);
+      // Charlie has 0 token 0 since the second transfer in the vector should fail
+      assert_eq!(PRC20Module::balance_of((0, charlie)), 0);
+    });
+  }
 }
