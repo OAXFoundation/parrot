@@ -62,6 +62,7 @@ pub type Hash = sp_core::H256;
 pub type DigestItem = generic::DigestItem<Hash>;
 
 mod prc20;
+mod misc;
 /// Used for the module template in `./template.rs`
 mod template;
 /// Opaque types. These are used by the CLI to instantiate machinery that don't need to know
@@ -246,6 +247,10 @@ impl prc20::Trait for Runtime {
 	type Signature = MultiSignature;
 }
 
+impl misc::Trait for Runtime {
+	type Event = Event;
+}
+
 construct_runtime!(
 	pub enum Runtime where
 		Block = Block,
@@ -264,6 +269,7 @@ construct_runtime!(
 		TemplateModule: template::{Module, Call, Storage, Event<T>},
 		RandomnessCollectiveFlip: randomness_collective_flip::{Module, Call, Storage},
 		PRC20Module: prc20::{Module, Call, Storage, Event<T>},
+		MiscModule: misc::{Module, Call, Storage, Event<T>},
 	}
 );
 
