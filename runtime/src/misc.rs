@@ -64,6 +64,7 @@ decl_module! {
                   ensure!(!&td_vec[i].amount.is_zero(), "transfer amount should be non-zero");
                   // TODO: make the transfer (currently has issues with the balance type)
                   let balance: Balance = td_vec[i].amount.clone();
+                  // TODO: uncommenting this line causes a type mismatch error (this may be due to the import of Balance crate, please look at Society crate to evaluate how we should bring "Balance" into scope
                   //T::Currency::transfer( &sender.clone(), &td_vec[i].to.clone(), balance, ExistenceRequirement::AllowDeath);
 
         }
