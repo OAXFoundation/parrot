@@ -1,3 +1,5 @@
+[![Build Status](https://api.travis-ci.com/OAXFoundation/parrot.png)](https://travis-ci.com/OAXFoundation/parrot)
+
 # Substrate Node Template
 
 A new FRAME-based Substrate node, ready for hacking.
