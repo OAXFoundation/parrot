@@ -9,6 +9,9 @@ rust:
 script:
   - cargo build --verbose --all
   - cargo test --verbose --all
+branches:
+  only:
+    - substratev2
 matrix:
   allow_failures:
     - rust: nightly
