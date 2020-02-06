@@ -15,8 +15,6 @@ use sp_std::vec::Vec;
 use crate::sp_api_hidden_includes_construct_runtime::hidden_include::sp_runtime::traits::Zero;
 use sp_std::if_std;
 
-//TODO: this is from society frame, but cant get this to compile
-//use frame_system::{self as system, ensure_signed, ensure_root};
 type BalanceOf<T> = <<T as Trait>::Currency as Currency<<T as system::Trait>::AccountId>>::Balance;
 
 /// The module's configuration trait.
@@ -58,12 +56,12 @@ decl_module! {
             let num_transfers = td_vec.len();
             for i in 0..num_transfers{
                   //if_std!{println!("{:#?}", &td_vec[i])};
+                  //TODO: do we want to do more ensure? or do we want to save costs, I think we should focus on saving costs here
+
                   // ensure sending amount is not zero or warn
                   ensure!(!&td_vec[i].amount.is_zero(), "transfer amount should be non-zero");
-                  // TODO: make the transfer (currently has issues with the balance type)
-                  let balance: BalanceOf<T> = td_vec[i].amount.clone();
-
-                  T::Currency::transfer( &sender.clone(), &td_vec[i].to.clone(), balance, ExistenceRequirement::AllowDeath);
+                  // make the transfer
+                  T::Currency::transfer( &sender.clone(), &td_vec[i].to.clone(), td_vec[i].amount.clone(), ExistenceRequirement::AllowDeath);
 
         }
     		// Since this is going to trigger transfers that already trigger events, we do not need to trigger a multitransfer event.
@@ -81,6 +79,7 @@ decl_event!(
 		// Just a dummy event.
 		// Event `Something` is declared with a parameter of the type `u32` and `AccountId`
 		// To emit this event, we call the deposit funtion, from our runtime funtions
+		// TODO: We are choosing not to broadcast anything here since things may feel sequentially. Look into if this can be removed, since this macro may expand to a few 100 lines of code
 		SomethingStored(u32, AccountId, Balance),
 	}
 );
@@ -154,13 +153,13 @@ mod tests {
 
 
     type MiscModule = Module<Test>;
+    pub type Balances = pallet_balances::Module<Test>;
 
 
 
     // This function basically just builds a genesis storage key/value store according to
     // our desired mockup.
     fn new_test_ext() -> sp_io::TestExternalities {
-        // TODO add genesis config and give account 0 all the native currency
         let mut t = system::GenesisConfig::default().build_storage::<Test>().unwrap();
         pallet_balances::GenesisConfig::<Test> {
             balances: vec![(0,10000)],
@@ -176,14 +175,10 @@ mod tests {
     #[test]
     fn multi_transfer_works() {
         new_test_ext().execute_with(|| {
-            // Just a dummy test for the dummy funtion `do_something`
-            // calling the `do_something` function with a value 42
-
-            // TODO: start with account 0 with all native tokens in genesis config
 
             // create first transfer details struct
             let first_transfer = TransferDetails{
-                amount: 10000,
+                amount: 1000,
                 to: 1,
             };
             // create second transfer details struct
@@ -196,13 +191,14 @@ mod tests {
             // Do a multitransfer
             assert_ok!(MiscModule::multi_transfer(Origin::signed(0), transfer_vec));
 
-            // TODO: assert__eq balances
+            //assert_eq balances
 
-            // 1 has 10000 balance
-
+            // 1 has 1000 balance
+            assert_eq!(Balances::free_balance(1), 1000);
             // 2 has 5 balance
-
-            // 0 has total - 10005 balance
+            assert_eq!(Balances::free_balance(2), 5);
+            // 0 has total - 1005 balance
+            assert_eq!(Balances::free_balance(0), 8995);
 
         });
     }
@@ -210,19 +206,15 @@ mod tests {
     #[test]
     fn multi_transfer_fails_sequentiallyy() {
         new_test_ext().execute_with(|| {
-            // Just a dummy test for the dummy funtion `do_something`
-            // calling the `do_something` function with a value 42
-
-            // TODO: start with account 0 with all native tokens in genesis config
 
             // create first transfer details struct
             let first_transfer = TransferDetails{
-                amount: 50000000000,
+                amount: 10000,
                 to: 1,
             };
             // create second transfer details struct
             let second_transfer = TransferDetails{
-                amount: 50000000000,
+                amount: 100,
                 to:2,
             };
             // Create a vector of these transfer details struct
@@ -230,13 +222,14 @@ mod tests {
 
             assert_ok!(MiscModule::multi_transfer(Origin::signed(0), transfer_vec));
 
-            // TODO: assert_eq balances
+            //assert_eq balances
+
             // 1 has 50000000000
-
+            assert_eq!(Balances::free_balance(1), 10000);
             // 2 didnt recieve anything since 0 ran out
-
-            // 0 has total - 50000000000
-
+            assert_eq!(Balances::free_balance(2), 0);
+            // 0 has total - 0
+            assert_eq!(Balances::free_balance(0), 0);
         });
     }
 }
