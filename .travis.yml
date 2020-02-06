@@ -13,7 +13,7 @@ env:
 script:
   - rustup target add wasm32-unknown-unknown --toolchain nightly
   - cargo build --verbose --all
-  - cargo test --verbose --all
+  - cd runtime; cargo test --verbose --all
 branches:
   only:
     - master

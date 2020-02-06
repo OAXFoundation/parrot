@@ -12,7 +12,7 @@ package = 'node-primitives'
 rev = '3e651110aa06aa835790df63410a29676243fc54'
 version = '2.0.0'
 
-[dependencies.balances]
+[dependencies.pallet-balances]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
 package = 'pallet-balances'
@@ -174,7 +174,7 @@ version = '2.0.0'
 default = ['std']
 std = [
     'aura/std',
-    'balances/std',
+    'pallet-balances/std',
     'codec/std',
     'frame-executive/std',
     'frame-support/std',

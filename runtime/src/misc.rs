@@ -14,15 +14,13 @@ use codec::{Decode, Encode, HasCompact};
 use sp_std::vec::Vec;
 use crate::sp_api_hidden_includes_construct_runtime::hidden_include::sp_runtime::traits::Zero;
 use sp_std::if_std;
-// TODO: figure out what this import should actually be and how to bring Balance into scope, since currently the transfer function has the following error :  expected associated type, found `u128`
-use crate::Balance;
 
 //TODO: this is from society frame, but cant get this to compile
 //use frame_system::{self as system, ensure_signed, ensure_root};
-//type BalanceOf<T, I> = <<T as Trait<I>>::Currency as Currency<<T as system::Trait>::AccountId>>::Balance;
+type BalanceOf<T> = <<T as Trait>::Currency as Currency<<T as system::Trait>::AccountId>>::Balance;
 
 /// The module's configuration trait.
-pub trait Trait: system::Trait + balances::Trait{
+pub trait Trait: system::Trait + pallet_balances::Trait{
     /// The overarching event type.
     type Event: From<Event<Self>> + Into<<Self as system::Trait>::Event>;
     type Currency: Currency<Self::AccountId>;
@@ -52,7 +50,7 @@ decl_module! {
 
 
         // Multi transfer event
-		pub fn multi_transfer(origin, td_vec: Vec<TransferDetails<T::AccountId, Balance>>) -> DispatchResult {
+		pub fn multi_transfer(origin, td_vec: Vec<TransferDetails<T::AccountId, BalanceOf<T>>>) -> DispatchResult {
 			// check if signed
 			let sender = ensure_signed(origin)?;
 			// iterate and do transfers
@@ -63,9 +61,9 @@ decl_module! {
                   // ensure sending amount is not zero or warn
                   ensure!(!&td_vec[i].amount.is_zero(), "transfer amount should be non-zero");
                   // TODO: make the transfer (currently has issues with the balance type)
-                  let balance: Balance = td_vec[i].amount.clone();
-                  // TODO: uncommenting this line causes a type mismatch error (this may be due to the import of Balance crate, please look at Society crate to evaluate how we should bring "Balance" into scope
-                  //T::Currency::transfer( &sender.clone(), &td_vec[i].to.clone(), balance, ExistenceRequirement::AllowDeath);
+                  let balance: BalanceOf<T> = td_vec[i].amount.clone();
+
+                  T::Currency::transfer( &sender.clone(), &td_vec[i].to.clone(), balance, ExistenceRequirement::AllowDeath);
 
         }
     		// Since this is going to trigger transfers that already trigger events, we do not need to trigger a multitransfer event.
@@ -76,11 +74,14 @@ decl_module! {
 }
 
 decl_event!(
-	pub enum Event<T> where AccountId = <T as system::Trait>::AccountId {
+	pub enum Event<T> where
+	AccountId = <T as system::Trait>::AccountId,
+    Balance = BalanceOf<T>
+    {
 		// Just a dummy event.
 		// Event `Something` is declared with a parameter of the type `u32` and `AccountId`
 		// To emit this event, we call the deposit funtion, from our runtime funtions
-		SomethingStored(u32, AccountId),
+		SomethingStored(u32, AccountId, Balance),
 	}
 );
 
@@ -136,9 +137,9 @@ mod tests {
 
     impl Trait for Test {
         type Event = ();
-        type Currency = balances::Module<Self>;
+        type Currency = pallet_balances::Module<Self>;
     }
-    impl balances::Trait for Test {
+    impl pallet_balances::Trait for Test {
         type Balance = u64;
         type OnFreeBalanceZero = ();
         type OnNewAccount = ();
@@ -161,7 +162,7 @@ mod tests {
     fn new_test_ext() -> sp_io::TestExternalities {
         // TODO add genesis config and give account 0 all the native currency
         let mut t = system::GenesisConfig::default().build_storage::<Test>().unwrap();
-        balances::GenesisConfig::<Test> {
+        pallet_balances::GenesisConfig::<Test> {
             balances: vec![(0,10000)],
             vesting: vec![],
         }

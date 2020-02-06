@@ -19,7 +19,7 @@ use sp_std::vec::Vec;
 
 
 /// The module's configuration trait.
-pub trait Trait: system::Trait + balances::Trait {
+pub trait Trait: system::Trait + pallet_balances::Trait {
   /// The overarching event type.
   type Event: From<Event<Self>> + Into<<Self as system::Trait>::Event>;
   type TokenBalance: Parameter + Member + SimpleArithmetic + Codec + Default + Copy;
@@ -353,7 +353,7 @@ mod tests {
     pub const CreationFee: u64 = 0;
   }
 
-  impl balances::Trait for TestRuntime {
+  impl pallet_balances::Trait for TestRuntime {
     type Balance = u64;
     type OnFreeBalanceZero = ();
     type OnNewAccount = ();
@@ -370,7 +370,7 @@ mod tests {
       let mut t = system::GenesisConfig::default()
         .build_storage::<TestRuntime>()
         .unwrap();
-      balances::GenesisConfig::<TestRuntime> {
+      pallet_balances::GenesisConfig::<TestRuntime> {
         balances: vec![],
         vesting: vec![],
       }
