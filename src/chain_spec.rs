@@ -126,7 +126,7 @@ fn testnet_genesis(initial_authorities: Vec<(AuraId, GrandpaId)>,
 		indices: Some(IndicesConfig {
 			ids: endowed_accounts.clone(),
 		}),
-		balances: Some(BalancesConfig {
+		pallet_balances: Some(BalancesConfig {
 			balances: endowed_accounts.iter().cloned().map(|k|(k, 1 << 60)).collect(),
 			vesting: vec![],
 		}),
