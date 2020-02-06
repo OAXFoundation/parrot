@@ -1,4 +1,4 @@
-[![Build Status](https://api.travis-ci.com/OAXFoundation/parrot.png)](https://travis-ci.com/OAXFoundation/parrot)
+[![Build Status](https://travis-ci.com/OAXFoundation/parrot.svg?token=jgyrLyyx469572phyxTx&branch=master)](https://travis-ci.com/OAXFoundation/parrot)
 
 # Substrate Node Template
 
