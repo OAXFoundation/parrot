@@ -1,8 +1,11 @@
-[![Build Status](https://travis-ci.com/OAXFoundation/parrot.svg?token=jgyrLyyx469572phyxTx&branch=master)](https://travis-ci.com/OAXFoundation/parrot)
-
 # Substrate Node Template
 
-A new FRAME-based Substrate node, ready for hacking.
+A new Substrate node, ready for hacking. This node includes:
+
+* A FRAME-based runtime
+* A template pallet
+* Aura block authoring
+* Grandpa finality gadget
 
 ## Build
 
@@ -110,22 +113,36 @@ Please enter developer tab and paste the following JSON
 
 ```
 {
-  "TokenBalance": "u128",
-  "TokenId": "u128",
-  "Public": "AccountId",
-  "Signature": "H512",
-  "Offer": {
-    "offer_token": "TokenId",
-    "offer_amount": "TokenBalance",
-    "requested_token": "TokenId",
-    "requested_amount": "TokenBalance",
-    "nonce": "u128"
-  },
-  "SignedOffer": {
-    "offer": "Offer",
-    "signature": "H512",
-    "signer": "AccountId"
-  }
+	"TokenBalance": "u128",
+	"TokenId": "u128",
+	"Public": "AccountId",
+	"Signature": "H512",
+	"Offer": {
+		"offer_token": "TokenId",
+		"offer_amount": "TokenBalance",
+		"requested_token": "TokenId",
+		"requested_amount": "TokenBalance",
+		"nonce": "u128"
+	},
+	"SignedOffer": {
+		"offer": "Offer",
+		"signature": "H512",
+		"signer": "AccountId"
+	},
+	"TransferDetails": {
+		"amount": "Balance",
+		"to": "AccountId"
+	},
+	"TokenTransferDetails": {
+		"amount": "TokenBalance",
+		"to": "AccountId"
+	},
+	"TransferStatus": {
+		"amount": "TokenBalance",
+		"to": "AccountId",
+		"status": "bool"
+	}
 }
+
 
 ```
