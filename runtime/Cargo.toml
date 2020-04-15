@@ -127,10 +127,6 @@ version = '1.0.5'
 default-features = false
 path = '../pallets/multi-transfer'
 
-[dependencies.burn]
-default-features = false
-path = '../pallets/burn'
-
 [features]
 default = ['std']
 std = [
@@ -160,5 +156,4 @@ std = [
     'transaction-payment/std',
     'template/std',
     'multi-transfer/std',
-    'burn/std',
 ]

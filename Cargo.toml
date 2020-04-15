@@ -7,5 +7,4 @@ members = [
     'pallets/template',
     'runtime',
     'pallets/multi-transfer',
-    'pallets/burn',
 ]
