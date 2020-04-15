@@ -3,6 +3,7 @@ members = [
     'node',
     'pallets/template',
     'pallets/multi_transfer',
+    'pallets/prc20',
     'runtime',
 ]
 [profile.release]
