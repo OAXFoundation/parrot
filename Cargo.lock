@@ -3209,6 +3209,7 @@ dependencies = [
  "pallet-balances",
  "parity-scale-codec",
  "safe-mix",
+ "sp-arithmetic",
  "sp-core",
  "sp-io",
  "sp-runtime",
