@@ -1,25 +1,24 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
+use codec::{Codec, Decode, Encode};
+use frame_support::weights::SimpleDispatchInfo;
 /// A runtime module for an ERC20 equivalent token standard + a few extra handy features!
-
-use frame_support::{decl_module, decl_storage, decl_event, dispatch::DispatchResult, ensure, Parameter};
+use frame_support::{
+    decl_event, decl_module, decl_storage, dispatch::DispatchResult, ensure, Parameter,
+};
 // the decl_event macros expands to look for system, and its actually called frame_system here so this line makes life easier
 use frame_system as system;
-use system::ensure_signed;
-use frame_support::weights::SimpleDispatchInfo;
-use codec::{Codec, Decode, Encode};
-use sp_std::vec::Vec;
-use sp_std::{ convert::{TryInto}};
-use sp_std::if_std;
-use sp_runtime::traits::{
-  CheckedAdd, CheckedSub, IdentifyAccount, Member, One, StaticLookup, Verify,
-  Zero,
-};
 use sp_arithmetic::traits::BaseArithmetic;
-
+use sp_runtime::traits::{
+    CheckedAdd, CheckedSub, IdentifyAccount, Member, One, StaticLookup, Verify, Zero,
+};
+use sp_std::convert::TryInto;
+use sp_std::if_std;
+use sp_std::vec::Vec;
+use system::ensure_signed;
 
 /// The module's configuration trait.
-pub trait Trait: frame_system::Trait + pallet_balances::Trait{
+pub trait Trait: frame_system::Trait + pallet_balances::Trait {
     /// The overarching event type.
     type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
     type TokenBalance: Parameter + Member + Codec + Default + Copy + BaseArithmetic;
@@ -30,48 +29,47 @@ pub trait Trait: frame_system::Trait + pallet_balances::Trait{
 #[derive(Encode, Decode, Copy, Clone, PartialEq, Eq, Default, Debug)]
 //#[cfg_attr(feature = "std", derive(Debug))]
 pub struct Offer<TokenBalance, TokenId> {
-  pub offer_token: TokenId,
-  pub offer_amount: TokenBalance,
-  pub requested_token: TokenId,
-  pub requested_amount: TokenBalance,
-  pub nonce: u128,
+    pub offer_token: TokenId,
+    pub offer_amount: TokenBalance,
+    pub requested_token: TokenId,
+    pub requested_amount: TokenBalance,
+    pub nonce: u128,
 }
 
 #[derive(Encode, Decode, Copy, Clone, PartialEq, Eq, Default, Debug)]
 //#[cfg_attr(feature = "std", derive(Debug))]
 pub struct SignedOffer<Signature, AccountId, TokenBalance, TokenId> {
-  pub offer: Offer<TokenBalance, TokenId>,
-  pub signature: Signature,
-  pub signer: AccountId,
+    pub offer: Offer<TokenBalance, TokenId>,
+    pub signature: Signature,
+    pub signer: AccountId,
 }
 #[derive(Encode, Decode, Copy, Clone, PartialEq, Eq, Default, Debug)]
 //#[cfg_attr(feature = "std", derive(Debug))]
-pub struct TransferTokenDetails< AccountId, TokenBalance> {
-  pub amount: TokenBalance,
-  pub to: AccountId,
+pub struct TransferTokenDetails<AccountId, TokenBalance> {
+    pub amount: TokenBalance,
+    pub to: AccountId,
 }
-
 
 // This module's storage items.
 decl_storage! {
-	trait Store for Module<T: Trait> as PRC20 {
-	    TotalSupply get(total_supply): map hasher(blake2_128_concat) T::TokenId => T::TokenBalance;
+    trait Store for Module<T: Trait> as PRC20 {
+        TotalSupply get(total_supply): map hasher(blake2_128_concat) T::TokenId => T::TokenBalance;
         Balances get(balance_of): map hasher(blake2_128_concat) (T::TokenId, T::AccountId) => T::TokenBalance;
         Allowance get(allowance_of): map hasher(blake2_128_concat) (T::TokenId, T::AccountId, T::AccountId) => T::TokenBalance;
         TokenCount get(token_count): T::TokenId;
-	}
+    }
 }
 
 // The module's dispatch functions.
 decl_module! {
-	/// The module declaration.
-	pub struct Module<T: Trait> for enum Call where origin: T::Origin {
-		// Initializing events
-		// this is needed only if you are using events in your module
-		fn deposit_event() = default;
+    /// The module declaration.
+    pub struct Module<T: Trait> for enum Call where origin: T::Origin {
+        // Initializing events
+        // this is needed only if you are using events in your module
+        fn deposit_event() = default;
 
-		//create a new token, passing totalSupply, (currently creator will receive total supply)
-		#[weight = SimpleDispatchInfo::FixedNormal(100_000_000)]
+        //create a new token, passing totalSupply, (currently creator will receive total supply)
+        #[weight = SimpleDispatchInfo::FixedNormal(100_000_000)]
         fn create_token(origin, #[compact] total_supply: T::TokenBalance) -> DispatchResult{
           // ensure signed from the sender
           let sender = ensure_signed(origin)?;
@@ -176,18 +174,19 @@ decl_module! {
             Ok(())
          }
 
-	}
+    }
 }
 
 decl_event!(
-	pub enum Event<T> where
-	AccountId = <T as frame_system::Trait>::AccountId,
-    TokenId = <T as Trait>::TokenId,
-    TokenBalance = <T as Trait>::TokenBalance,
+    pub enum Event<T>
+    where
+        AccountId = <T as frame_system::Trait>::AccountId,
+        TokenId = <T as Trait>::TokenId,
+        TokenBalance = <T as Trait>::TokenBalance,
     {
-		// Just a dummy event.
-		// Event `Something` is declared with a parameter of the type `u32` and `AccountId`
-		// To emit this event, we call the deposit function, from our runtime functions
+        // Just a dummy event.
+        // Event `Something` is declared with a parameter of the type `u32` and `AccountId`
+        // To emit this event, we call the deposit function, from our runtime functions
         // event for a new token creation
         NewToken(TokenId, AccountId, TokenBalance),
         // event for a simple token transfer
@@ -195,107 +194,119 @@ decl_event!(
         // event for approval
         Approval(TokenId, AccountId, AccountId, TokenBalance),
         // event for Swap
-        Swap(TokenId,TokenBalance,TokenId,TokenBalance,AccountId,AccountId),
+        Swap(
+            TokenId,
+            TokenBalance,
+            TokenId,
+            TokenBalance,
+            AccountId,
+            AccountId,
+        ),
         // Event for MultiTransfer
         MultiTransfer(Vec<(AccountId, TokenBalance, bool)>),
-	}
+    }
 );
 
 impl<T: Trait> Module<T> {
-  fn make_transfer(
-    id: T::TokenId,
-    from: T::AccountId,
-    to: T::AccountId,
-    amount: T::TokenBalance,
-  ) -> DispatchResult {
-    // get balance of account
-    let from_balance = Self::balance_of((id, from.clone()));
-    // ensure user has enough tokens
-    ensure!(from_balance >= amount, "user does not have enough tokens");
-    // modify sender and receiver balance map
-    <Balances<T>>::insert((id, from.clone()), from_balance - amount);
-    <Balances<T>>::mutate((id, to.clone()), |balance| *balance += amount);
-    // broadcast a transfer event
-    Self::deposit_event(RawEvent::Transfer(id, from.clone(), to, amount));
-    Ok(())
-  }
-
-  fn make_swap(
-    sender: T::AccountId,
-    signed_offer: SignedOffer<T::Signature, T::AccountId, T::TokenBalance, T::TokenId>,
-  ) -> DispatchResult {
-    // Check from balance of offer creator
-    let offer_from_balance =
-      Self::balance_of((signed_offer.offer.offer_token, signed_offer.signer.clone()));
-    // ensure has enough tokens
-    ensure!(
-      offer_from_balance >= signed_offer.offer.offer_amount,
-      "Offerer does not have enough tokens"
-    );
-    // Check from balance of requestor
-    let requested_from_balance =
-      Self::balance_of((signed_offer.offer.requested_token, sender.clone()));
-    // ensure has enough tokens
-    ensure!(
-      requested_from_balance >= signed_offer.offer.requested_amount,
-      "Requestor does not have enough tokens"
-    );
-    // get maker nonce
-    let maker_nonce: u128 = TryInto::<u128>::try_into(<system::Module<T>>::account_nonce(&signed_offer.signer)).map_err(|_| "error")?;
-    // let taker_nonce: u128 =  TryInto::<u128>::try_into(<system::Module<T>>::account_nonce(&sender)).map_err(|_| "error")?;
-    if_std! {println!("Maker Nonce: {:?}", maker_nonce.clone());
-            //  println!("Taker Nonce: {:?}", taker_nonce);
-             println!("Signed Offer Nonce: {:?}", signed_offer.offer.nonce.clone());
-            }
-    // ensure maker nonce is correct (replay protection)
-    ensure!(   maker_nonce == signed_offer.offer.nonce , "Nonce is incorrect!");
-    // modify sender and receiver balance map
-    <Balances<T>>::insert(
-      (signed_offer.offer.offer_token, signed_offer.signer.clone()),
-      offer_from_balance - signed_offer.offer.offer_amount,
-    );
-    <Balances<T>>::mutate(
-      (signed_offer.offer.offer_token, sender.clone()),
-      |balance| *balance += signed_offer.offer.offer_amount,
-    );
-
-    <Balances<T>>::insert(
-      (signed_offer.offer.requested_token, sender.clone()),
-      requested_from_balance - signed_offer.offer.requested_amount,
-    );
-    <Balances<T>>::mutate(
-      (
-        signed_offer.offer.requested_token,
-        signed_offer.signer.clone(),
-      ),
-      |balance| *balance += signed_offer.offer.requested_amount,
-    );
-    // increment account nonce for replay protection
-    <system::Module<T>>::inc_account_nonce(&signed_offer.signer);
-    // broadcast deposit event
-    Self::deposit_event(RawEvent::Swap(
-      signed_offer.offer.offer_token,
-      signed_offer.offer.offer_amount,
-      signed_offer.offer.requested_token,
-      signed_offer.offer.requested_amount,
-      signed_offer.signer,
-      sender,
-    ));
-
-    Ok(())
-  }
-
-  fn verify_offer_signature(
-    signed_offer: SignedOffer<T::Signature, T::AccountId, T::TokenBalance, T::TokenId>,
-  ) -> Result<(), &'static str> {
-    match signed_offer
-      .signature
-      .verify(&signed_offer.offer.encode()[..], &signed_offer.signer)
-    {
-      true => Ok(()),
-      false => Err("signature is invalid"),
+    fn make_transfer(
+        id: T::TokenId,
+        from: T::AccountId,
+        to: T::AccountId,
+        amount: T::TokenBalance,
+    ) -> DispatchResult {
+        // get balance of account
+        let from_balance = Self::balance_of((id, from.clone()));
+        // ensure user has enough tokens
+        ensure!(from_balance >= amount, "user does not have enough tokens");
+        // modify sender and receiver balance map
+        <Balances<T>>::insert((id, from.clone()), from_balance - amount);
+        <Balances<T>>::mutate((id, to.clone()), |balance| *balance += amount);
+        // broadcast a transfer event
+        Self::deposit_event(RawEvent::Transfer(id, from.clone(), to, amount));
+        Ok(())
     }
-  }
+
+    fn make_swap(
+        sender: T::AccountId,
+        signed_offer: SignedOffer<T::Signature, T::AccountId, T::TokenBalance, T::TokenId>,
+    ) -> DispatchResult {
+        // Check from balance of offer creator
+        let offer_from_balance =
+            Self::balance_of((signed_offer.offer.offer_token, signed_offer.signer.clone()));
+        // ensure has enough tokens
+        ensure!(
+            offer_from_balance >= signed_offer.offer.offer_amount,
+            "Offerer does not have enough tokens"
+        );
+        // Check from balance of requestor
+        let requested_from_balance =
+            Self::balance_of((signed_offer.offer.requested_token, sender.clone()));
+        // ensure has enough tokens
+        ensure!(
+            requested_from_balance >= signed_offer.offer.requested_amount,
+            "Requestor does not have enough tokens"
+        );
+        // get maker nonce
+        let maker_nonce: u128 =
+            TryInto::<u128>::try_into(<system::Module<T>>::account_nonce(&signed_offer.signer))
+                .map_err(|_| "error")?;
+        // let taker_nonce: u128 =  TryInto::<u128>::try_into(<system::Module<T>>::account_nonce(&sender)).map_err(|_| "error")?;
+        if_std! {println!("Maker Nonce: {:?}", maker_nonce.clone());
+        //  println!("Taker Nonce: {:?}", taker_nonce);
+         println!("Signed Offer Nonce: {:?}", signed_offer.offer.nonce.clone());
+        }
+        // ensure maker nonce is correct (replay protection)
+        ensure!(
+            maker_nonce == signed_offer.offer.nonce,
+            "Nonce is incorrect!"
+        );
+        // modify sender and receiver balance map
+        <Balances<T>>::insert(
+            (signed_offer.offer.offer_token, signed_offer.signer.clone()),
+            offer_from_balance - signed_offer.offer.offer_amount,
+        );
+        <Balances<T>>::mutate(
+            (signed_offer.offer.offer_token, sender.clone()),
+            |balance| *balance += signed_offer.offer.offer_amount,
+        );
+
+        <Balances<T>>::insert(
+            (signed_offer.offer.requested_token, sender.clone()),
+            requested_from_balance - signed_offer.offer.requested_amount,
+        );
+        <Balances<T>>::mutate(
+            (
+                signed_offer.offer.requested_token,
+                signed_offer.signer.clone(),
+            ),
+            |balance| *balance += signed_offer.offer.requested_amount,
+        );
+        // increment account nonce for replay protection
+        <system::Module<T>>::inc_account_nonce(&signed_offer.signer);
+        // broadcast deposit event
+        Self::deposit_event(RawEvent::Swap(
+            signed_offer.offer.offer_token,
+            signed_offer.offer.offer_amount,
+            signed_offer.offer.requested_token,
+            signed_offer.offer.requested_amount,
+            signed_offer.signer,
+            sender,
+        ));
+
+        Ok(())
+    }
+
+    fn verify_offer_signature(
+        signed_offer: SignedOffer<T::Signature, T::AccountId, T::TokenBalance, T::TokenId>,
+    ) -> Result<(), &'static str> {
+        match signed_offer
+            .signature
+            .verify(&signed_offer.offer.encode()[..], &signed_offer.signer)
+        {
+            true => Ok(()),
+            false => Err("signature is invalid"),
+        }
+    }
 }
 
 /*
@@ -746,4 +757,3 @@ mod tests {
   }
 }
  */
-
