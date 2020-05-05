@@ -1,21 +1,20 @@
 #![cfg_attr(not(feature = "std"), no_std)]
-
+//! # Multi Transfer Module
+//! Simple module that is used to conduct multi transfers of the native currency in a single tx
 use codec::{Decode, Encode, HasCompact};
-use frame_support::weights::SimpleDispatchInfo;
 use frame_support::{
-    decl_event, decl_module, decl_storage,
+    decl_event, decl_module,
     dispatch::DispatchResult,
     ensure,
     traits::{Currency, ExistenceRequirement},
+    weights::SimpleDispatchInfo,
 };
-/// A runtime module for doing multi-transfers!
+use frame_system::{self as system};
 use sp_runtime::traits::Zero;
-// the decl_event macros expands to look for system, and its actually called frame_system here so this line makes life easier
-use frame_system as system;
-use sp_std::if_std;
-use sp_std::vec::Vec;
+use sp_std::{if_std, vec::Vec};
 use system::ensure_signed;
 
+/// Types necessary to enable using currency
 type BalanceOf<T> =
     <<T as Trait>::Currency as Currency<<T as frame_system::Trait>::AccountId>>::Balance;
 
@@ -23,10 +22,11 @@ type BalanceOf<T> =
 pub trait Trait: frame_system::Trait + pallet_balances::Trait {
     /// The overarching event type.
     type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
+    /// Currency type to use blockchains native currency
     type Currency: Currency<Self::AccountId>;
 }
 
-// This is used to encode each transfer in a multiTransfer
+/// This is used to encode each transfer in a multiTransfer
 #[derive(Encode, Decode, Copy, Clone, PartialEq, Eq, Default, Debug)]
 //#[cfg_attr(feature = "std", derive(Debug))]
 pub struct TransferDetails<AccountId, Balance: HasCompact> {
@@ -34,21 +34,15 @@ pub struct TransferDetails<AccountId, Balance: HasCompact> {
     pub to: AccountId,
 }
 
-// This module's storage items.
-decl_storage! {
-    trait Store for Module<T: Trait> as MiscModule {
-    }
-}
-
 // The module's dispatch functions.
 decl_module! {
     /// The module declaration.
     pub struct Module<T: Trait> for enum Call where origin: T::Origin {
-        // Initializing events
         // this is needed only if you are using events in your module
         fn deposit_event() = default;
 
-        // Multi transfer event
+        /// Multi transfer function that a user will call
+        /// takes origin and a vector of TranferDetails
         #[weight = SimpleDispatchInfo::FixedOperational(10_000_000)]
         pub fn multi_transfer(origin, td_vec: Vec<TransferDetails<T::AccountId, BalanceOf<T>>>) -> DispatchResult {
             // check if signed
@@ -56,14 +50,11 @@ decl_module! {
             // get total number
             let num_transfers = td_vec.len();
             //TODO: limit this to a certain amount of multiTransfers
-
             // build a status vector, to push status of each transfer
             let mut status_vector: Vec<(T::AccountId, BalanceOf<T>, bool)> = Vec::new();
-
             for i in 0..num_transfers{
                   //if_std!{println!("{:#?}", &td_vec[i])};
                   //TODO: do we want to do more ensured?
-
                   // ensure sending amount is not zero or warn
                   ensure!(!&td_vec[i].amount.is_zero(), "transfer amount should be non-zero");
                   // make the transfer and get the result
@@ -75,12 +66,11 @@ decl_module! {
                    Ok(()) => true,
                    Err(_e) => false
                   };
-
                   status_vector.push((td_vec[i].to.clone(), td_vec[i].amount, transfer_status));
 
-        }
-           // if_std!{println!("{:#?}", status_vector)}
-           // trigger a multi-transfer event.
+            }
+            if_std!{println!("{:#?}", status_vector)}
+            // trigger a multi-transfer event.
             Self::deposit_event(RawEvent::MultiTransfer(status_vector));
             Ok(())
         }
@@ -93,10 +83,7 @@ decl_event!(
         AccountId = <T as frame_system::Trait>::AccountId,
         Balance = BalanceOf<T>,
     {
-        // Just a dummy event.
-        // Event `Something` is declared with a parameter of the type `u32` and `AccountId`
-        // To emit this event, we call the deposit function, from our runtime functions
-        SomethingStored(u32, AccountId, Balance),
+        /// Event that is broadcasted when a multiTransfer event is run
         MultiTransfer(Vec<(AccountId, Balance, bool)>),
     }
 );
@@ -105,7 +92,6 @@ decl_event!(
 #[cfg(test)]
 mod tests {
     use super::*;
-
     use frame_support::traits::{Get, IsDeadAccount};
     use frame_support::{assert_ok, impl_outer_origin, parameter_types, weights::Weight};
     use sp_core::H256;
