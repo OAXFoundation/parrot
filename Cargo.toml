@@ -2,8 +2,10 @@
 members = [
     'node',
     'pallets/template',
-    'pallets/multi_transfer',
     'pallets/prc20',
+    'pallets/multi_transfer',
+    'pallets/delegation',
+    'pallets/burn',
     'runtime',
 ]
 [profile.release]

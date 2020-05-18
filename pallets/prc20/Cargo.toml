@@ -1,12 +1,12 @@
 [package]
 authors = ['OAX']
-description = 'OAX PRC20'
+description = 'OAX Prc20 Pallet'
 edition = '2018'
-homepage = 'https://oax.org'
+homepage = 'https://www.oax.org/'
 license = 'Unlicense'
 name = 'prc20'
-repository = 'https://github.com/paritytech/substrate/'
-version = '2.0.0-alpha.6'
+repository = 'https://github.com/OAXFoundation/substrate-fees-poc'
+version = '2.0.0-alpha.8'
 
 [package.metadata.docs.rs]
 targets = ['x86_64-unknown-linux-gnu']
@@ -19,52 +19,64 @@ version = '1.3.0'
 
 [dependencies.frame-support]
 default-features = false
-version = '2.0.0-alpha.6'
-
-[dependencies.safe-mix]
-default-features = false
-version = '1.0.0'
+git = 'https://github.com/paritytech/substrate.git'
+tag = 'v2.0.0-alpha.8'
+version = '2.0.0-alpha.8'
 
 [dependencies.frame-system]
 default-features = false
-version = '2.0.0-alpha.6'
+git = 'https://github.com/paritytech/substrate.git'
+tag = 'v2.0.0-alpha.8'
+version = '2.0.0-alpha.8'
 
-[dependencies.sp-core]
+[dependencies.pallet-balances]
 default-features = false
-version = '2.0.0-alpha.6'
-
-[dependencies.sp-io]
-default-features = false
-version = '2.0.0-alpha.6'
-
-[dependencies.sp-runtime]
-default-features = false
-version = '2.0.0-alpha.6'
+git = 'https://github.com/paritytech/substrate.git'
+tag = 'v2.0.0-alpha.8'
+version = '2.0.0-alpha.8'
 
 [dependencies.sp-std]
 default-features = false
-version = '2.0.0-alpha.6'
+git = 'https://github.com/paritytech/substrate.git'
+tag = 'v2.0.0-alpha.8'
+version = '2.0.0-alpha.8'
 
-[dependencies.pallet-balances]
-version = "2.0.0-alpha.6"
+[dependencies.sp-runtime]
 default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+tag = 'v2.0.0-alpha.8'
+version = '2.0.0-alpha.8'
 
 [dependencies.sp-arithmetic]
-version = "2.0.0-alpha.6"
 default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+tag = 'v2.0.0-alpha.8'
+version = '2.0.0-alpha.8'
 
-# [dev-dependencies.substrate-test-client]
-# version = "2.0.0-dev"
-# default-features = false
-# git = "https://github.com/paritytech/substrate/"
+[dev-dependencies.sp-core]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+tag = 'v2.0.0-alpha.8'
+version = '2.0.0-alpha.8'
+
+[dev-dependencies.sp-io]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+tag = 'v2.0.0-alpha.8'
+version = '2.0.0-alpha.8'
+
+[dev-dependencies.substrate-test-client ]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+tag = 'v2.0.0-alpha.8'
+version = '2.0.0-alpha.8'
 
 [features]
 default = ['std']
 std = [
     'codec/std',
     'frame-support/std',
-    'safe-mix/std',
     'frame-system/std',
     'pallet-balances/std',
-    'sp-runtime/std',
+    'sp-std/std'
 ]
