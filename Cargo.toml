@@ -1,7 +1,6 @@
 [workspace]
 members = [
     'node',
-    'pallets/template',
     'pallets/prc20',
     'pallets/multi_transfer',
     'pallets/delegation',

@@ -31,20 +31,29 @@ pub use sp_runtime::BuildStorage;
 pub use timestamp::Call as TimestampCall;
 pub use balances::Call as BalancesCall;
 pub use sp_runtime::{Permill, Perbill};
-pub use frame_support::{
-	construct_runtime, parameter_types, StorageValue,
-	traits::{KeyOwnerProofSystem, Randomness},
+use frame_support::{
+	construct_runtime, parameter_types,
 	weights::{
 		Weight,
 		constants::{BlockExecutionWeight, ExtrinsicBaseWeight, RocksDbWeight, WEIGHT_PER_SECOND},
 	},
+	traits::{Currency, Imbalance, KeyOwnerProofSystem, OnUnbalanced, Randomness},
 };
+// pub use frame_support::{
+// 	construct_runtime, parameter_types, StorageValue,
+// 	traits::{KeyOwnerProofSystem, Randomness, Currency, OnUnbalanced},
+// 	weights::{
+// 		Weight,
+// 		constants::{BlockExecutionWeight, ExtrinsicBaseWeight, RocksDbWeight, WEIGHT_PER_SECOND},
+// 	},
+// };
 
 /// Importing a template pallet
-pub use template;
+// pub use template;
 pub use multi_transfer; 
 pub use prc20; 
 pub use delegation; 
+pub use burn; 
 
 /// An index to a block.
 pub type BlockNumber = u32;
@@ -124,6 +133,26 @@ pub fn native_version() -> NativeVersion {
 		can_author_with: Default::default(),
 	}
 }
+
+type NegativeImbalance = <Balances as Currency<AccountId>>::NegativeImbalance;
+
+pub struct DealWithFees;
+impl OnUnbalanced<NegativeImbalance> for DealWithFees {
+	fn on_unbalanceds<B>(mut fees_then_tips: impl Iterator<Item=NegativeImbalance>) {
+		if let Some(fees) = fees_then_tips.next() {
+			// for fees, 80% to treasury, 20% to author
+			let split = fees.ration(80, 20);
+			// if let Some(tips) = fees_then_tips.next() {
+			// 	// for tips, if any, 80% to treasury, 20% to author (though this can be anything)
+			// 	// tips.ration_merge_into(80, 20, &mut split);
+			// }
+			Burner::on_unbalanced(split.0);
+			Burner::on_unbalanced(split.1);
+		}
+	}
+}
+
+
 
 parameter_types! {
 	pub const BlockHashCount: BlockNumber = 2400;
@@ -237,7 +266,7 @@ parameter_types! {
 
 impl transaction_payment::Trait for Runtime {
 	type Currency = balances::Module<Runtime>;
-	type OnTransactionPayment = ();
+	type OnTransactionPayment = DealWithFees;
 	type TransactionByteFee = TransactionByteFee;
 	type WeightToFee = ConvertInto;
 	type FeeMultiplierUpdate = ();
@@ -248,10 +277,6 @@ impl sudo::Trait for Runtime {
 	type Call = Call;
 }
 
-/// Used for the module template in `./template.rs`
-impl template::Trait for Runtime {
-	type Event = Event;
-}
 
 // This is a configurable constant for the multiTransfer limit (max number of transfers in a single multi_transfer)
 parameter_types! {
@@ -282,6 +307,17 @@ impl prc20::Trait for Runtime {
     type MaxTransfers = MaxTransfers;
 }
 
+// This is a configurable constant, that sets the number of blocks to run a burn (every 5 blocks)
+parameter_types! {
+	pub const BurnPeriod: BlockNumber = 1 * MINUTES;
+}
+// Implement the burn trait for runtime
+impl burn::Trait for Runtime {
+	type Event = Event;
+	type Currency = Balances;
+	type BurnPeriod = BurnPeriod;
+}
+
 construct_runtime!(
 	pub enum Runtime where
 		Block = Block,
@@ -296,12 +332,11 @@ construct_runtime!(
 		Balances: balances::{Module, Call, Storage, Config<T>, Event<T>},
 		TransactionPayment: transaction_payment::{Module, Storage},
 		Sudo: sudo::{Module, Call, Config<T>, Storage, Event<T>},
-		// Used for the module template in `./template.rs`
-		TemplateModule: template::{Module, Call, Storage, Event<T>},
 		// OAX custom pallets 
 		MultiTransfer: multi_transfer::{Module, Call, Event<T>},
 		PRC20: prc20::{Module, Call, Storage, Event<T>},
 		Delegation: delegation::{Module, Call, Event<T>},
+		Burner: burn::{Module, Call, Storage, Event<T>, Config<T>},
 	}
 );
 

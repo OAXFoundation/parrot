@@ -2584,6 +2584,7 @@ dependencies = [
 name = "node-template-runtime"
 version = "2.0.0-alpha.8"
 dependencies = [
+ "burn",
  "delegation",
  "frame-executive",
  "frame-support",
@@ -2594,7 +2595,6 @@ dependencies = [
  "pallet-grandpa",
  "pallet-randomness-collective-flip",
  "pallet-sudo",
- "pallet-template",
  "pallet-timestamp",
  "pallet-transaction-payment",
  "parity-scale-codec",
@@ -2880,18 +2880,6 @@ dependencies = [
  "sp-io",
  "sp-runtime",
  "sp-std",
-]
-
-[[package]]
-name = "pallet-template"
-version = "2.0.0-alpha.8"
-dependencies = [
- "frame-support",
- "frame-system",
- "parity-scale-codec",
- "sp-core",
- "sp-io",
- "sp-runtime",
 ]
 
 [[package]]
