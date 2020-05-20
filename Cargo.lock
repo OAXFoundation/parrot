@@ -2552,6 +2552,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "node-primitives"
+version = "2.0.0-alpha.8"
+source = "git+https://github.com/paritytech/substrate.git?tag=v2.0.0-alpha.8#7e9a2ae78d27cc56e053fbec3b34a1a258b89561"
+dependencies = [
+ "frame-system",
+ "parity-scale-codec",
+ "sp-application-crypto",
+ "sp-core",
+ "sp-runtime",
+]
+
+[[package]]
 name = "node-template"
 version = "2.0.0-alpha.8"
 dependencies = [
@@ -2590,6 +2602,7 @@ dependencies = [
  "frame-support",
  "frame-system",
  "multi-transfer",
+ "node-primitives",
  "pallet-aura",
  "pallet-balances",
  "pallet-grandpa",
@@ -2597,6 +2610,7 @@ dependencies = [
  "pallet-sudo",
  "pallet-timestamp",
  "pallet-transaction-payment",
+ "pallet-utility",
  "parity-scale-codec",
  "prc20",
  "serde",
@@ -2921,6 +2935,21 @@ dependencies = [
  "parity-scale-codec",
  "serde",
  "sp-api",
+ "sp-runtime",
+ "sp-std",
+]
+
+[[package]]
+name = "pallet-utility"
+version = "2.0.0-alpha.8"
+source = "git+https://github.com/paritytech/substrate.git?tag=v2.0.0-alpha.8#7e9a2ae78d27cc56e053fbec3b34a1a258b89561"
+dependencies = [
+ "frame-support",
+ "frame-system",
+ "parity-scale-codec",
+ "serde",
+ "sp-core",
+ "sp-io",
  "sp-runtime",
  "sp-std",
 ]

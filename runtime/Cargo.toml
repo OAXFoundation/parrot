@@ -149,6 +149,20 @@ package = 'pallet-transaction-payment'
 tag = 'v2.0.0-alpha.8'
 version = '2.0.0-alpha.8'
 
+[dependencies.node-primitives]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'node-primitives'
+tag = 'v2.0.0-alpha.8'
+version = '2.0.0-alpha.8'
+
+[dependencies.pallet-utility]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-utility'
+tag = 'v2.0.0-alpha.8'
+version = '2.0.0-alpha.8'
+
 [dependencies.multi-transfer]
 default-features = false
 package = 'multi-transfer'
@@ -218,7 +232,10 @@ std = [
     'system/std',
     'timestamp/std',
     'transaction-payment/std',
+    'node-primitives/std',
     'multi-transfer/std',
     'prc20/std',
-    'delegation/std'
+    'delegation/std',
+    'burn/std',
+    'pallet-utility/std'
 ]

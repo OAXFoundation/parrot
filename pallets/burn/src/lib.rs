@@ -96,7 +96,6 @@ impl<T: Trait> Module<T> {
     fn burn() {
         let budget_remaining = Self::pot();
         if_std! {println!{"Budget remaining: {:#?} !", budget_remaining}};
-        if_std! {println!{"BURN BABY BURN!"}};
         let _ = T::Currency::slash(&Self::account_id(), budget_remaining);
         Self::deposit_event(RawEvent::Burn(budget_remaining));
     }
@@ -106,8 +105,8 @@ impl<T: Trait> Module<T> {
 impl<T: Trait> OnUnbalanced<NegativeImbalanceOf<T>> for Module<T> {
 	fn on_nonzero_unbalanced(amount: NegativeImbalanceOf<T>) {
 		let numeric_amount = amount.peek();
-		// Must resolve into existing but better to be safe.
-		let _ = T::Currency::resolve_creating(&Self::account_id(), amount);
+        // Must resolve into existing but better to be safe.
+        let _ = T::Currency::resolve_creating(&Self::account_id(), amount);
 		Self::deposit_event(RawEvent::Deposit(numeric_amount));
     }
 }

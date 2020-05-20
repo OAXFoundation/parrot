@@ -11,7 +11,7 @@ include!(concat!(env!("OUT_DIR"), "/wasm_binary.rs"));
 use sp_std::prelude::*;
 use sp_core::{crypto::KeyTypeId, OpaqueMetadata};
 use sp_runtime::{
-	ApplyExtrinsicResult, generic, create_runtime_str, impl_opaque_keys, MultiSignature,
+	ApplyExtrinsicResult, generic, create_runtime_str, impl_opaque_keys, MultiSignature, Perquintill,
 	transaction_validity::{TransactionValidity, TransactionSource},
 };
 use sp_runtime::traits::{
@@ -39,6 +39,7 @@ use frame_support::{
 	},
 	traits::{Currency, Imbalance, KeyOwnerProofSystem, OnUnbalanced, Randomness},
 };
+use sp_std::if_std;
 // pub use frame_support::{
 // 	construct_runtime, parameter_types, StorageValue,
 // 	traits::{KeyOwnerProofSystem, Randomness, Currency, OnUnbalanced},
@@ -54,6 +55,14 @@ pub use multi_transfer;
 pub use prc20; 
 pub use delegation; 
 pub use burn; 
+
+/// Implementations of some helper traits passed into runtime modules as associated types.
+pub mod impls;
+use impls::{ LinearWeightToFee, TargetedFeeAdjustment};
+
+/// Constant values used within the runtime.
+pub mod constants;
+use constants::{ currency::*};
 
 /// An index to a block.
 pub type BlockNumber = u32;
@@ -141,13 +150,15 @@ impl OnUnbalanced<NegativeImbalance> for DealWithFees {
 	fn on_unbalanceds<B>(mut fees_then_tips: impl Iterator<Item=NegativeImbalance>) {
 		if let Some(fees) = fees_then_tips.next() {
 			// for fees, 80% to treasury, 20% to author
-			let split = fees.ration(80, 20);
-			// if let Some(tips) = fees_then_tips.next() {
-			// 	// for tips, if any, 80% to treasury, 20% to author (though this can be anything)
-			// 	// tips.ration_merge_into(80, 20, &mut split);
-			// }
-			Burner::on_unbalanced(split.0);
-			Burner::on_unbalanced(split.1);
+			let mut split = fees.ration(80, 20);
+			if let Some(tips) = fees_then_tips.next() {
+				// for tips, if any, 80% to treasury, 20% to author (though this can be anything)
+				tips.ration_merge_into(80, 20, &mut split);
+			}
+			//TODO: Switch consensus to babe, or pay the block author 80%!
+			// Currently all fees 80% and 20% is paid to burner 
+			Burner::on_nonzero_unbalanced(split.0);
+			Burner::on_nonzero_unbalanced(split.1);
 		}
 	}
 }
@@ -214,6 +225,23 @@ impl system::Trait for Runtime {
 	type AccountData = balances::AccountData<Balance>;
 }
 
+parameter_types! {
+	// One storage item; value is size 4+4+16+32 bytes = 56 bytes.
+	pub const MultisigDepositBase: Balance = 30 * CENTS;
+	// Additional storage item size of 32 bytes.
+	pub const MultisigDepositFactor: Balance = 5 * CENTS;
+	pub const MaxSignatories: u16 = 100;
+}
+
+impl pallet_utility::Trait for Runtime {
+	type Event = Event;
+	type Call = Call;
+	type Currency = Balances;
+	type MultisigDepositBase = MultisigDepositBase;
+	type MultisigDepositFactor = MultisigDepositFactor;
+	type MaxSignatories = MaxSignatories;
+}
+
 impl aura::Trait for Runtime {
 	type AuthorityId = AuraId;
 }
@@ -247,7 +275,7 @@ impl timestamp::Trait for Runtime {
 }
 
 parameter_types! {
-	pub const ExistentialDeposit: u128 = 500;
+	pub const ExistentialDeposit:  Balance = 1 * DOLLARS;
 }
 
 impl balances::Trait for Runtime {
@@ -261,16 +289,21 @@ impl balances::Trait for Runtime {
 }
 
 parameter_types! {
-	pub const TransactionByteFee: Balance = 1;
+	pub const TransactionByteFee: Balance = 10 * MILLICENTS;
+	// In the Substrate node, a weight of 10_000_000 (smallest non-zero weight)
+	// is mapped to 10_000_000 units of fees, hence:
+	pub const WeightFeeCoefficient: Balance = 1;
+	// for a sane configuration, this should always be less than `AvailableBlockRatio`.
+	pub const TargetBlockFullness: Perquintill = Perquintill::from_percent(25);
 }
-
 impl transaction_payment::Trait for Runtime {
-	type Currency = balances::Module<Runtime>;
+	type Currency = Balances;
 	type OnTransactionPayment = DealWithFees;
 	type TransactionByteFee = TransactionByteFee;
-	type WeightToFee = ConvertInto;
-	type FeeMultiplierUpdate = ();
+	type WeightToFee = LinearWeightToFee<WeightFeeCoefficient>;
+	type FeeMultiplierUpdate = TargetedFeeAdjustment<TargetBlockFullness>;
 }
+
 
 impl sudo::Trait for Runtime {
 	type Event = Event;
@@ -325,6 +358,7 @@ construct_runtime!(
 		UncheckedExtrinsic = UncheckedExtrinsic
 	{
 		System: system::{Module, Call, Config, Storage, Event<T>},
+		Utility: pallet_utility::{Module, Call, Storage, Event<T>},
 		RandomnessCollectiveFlip: randomness_collective_flip::{Module, Call, Storage},
 		Timestamp: timestamp::{Module, Call, Storage, Inherent},
 		Aura: aura::{Module, Config<T>, Inherent(Timestamp)},
