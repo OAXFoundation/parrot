@@ -11,7 +11,7 @@ use frame_support::{
 };
 use frame_system::{self as system};
 use log::info;
-use sp_std::{if_std, vec::Vec};
+use sp_std::vec::Vec;
 use system::ensure_signed;
 
 /// Types necessary to enable using currency
@@ -77,8 +77,6 @@ decl_module! {
             for i in 0..num_transfers{
                 // make the transfer and get the result
                 let transfer_result = T::Currency::transfer( &sender.clone(), &td_vec[i].to.clone(), td_vec[i].amount.clone(), ExistenceRequirement::AllowDeath);
-                // log the transfer result
-//                if_std!{println!("{:#?}", transfer_result)}
                 // get the status as either true or false
                 let transfer_status = match transfer_result {
                 Ok(()) => true,
@@ -86,10 +84,10 @@ decl_module! {
                 };
                 status_vector.push((td_vec[i].to.clone(), td_vec[i].amount, transfer_status));
             }
-            //if_std!{
-                info!("multiTransfer output:");
-                info!("{:#?}", status_vector);
-            //}
+
+            info!("multiTransfer output:");
+            info!("{:#?}", status_vector);
+
             // trigger a multi-transfer event.
             Self::deposit_event(RawEvent::MultiTransfer(status_vector));
             Ok(())
