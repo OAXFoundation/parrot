@@ -1,16 +1,16 @@
-[dependencies.aura]
-default-features = false
-git = 'https://github.com/paritytech/substrate.git'
-package = 'pallet-aura'
-tag = 'v2.0.0-alpha.8'
+[package]
+authors = ['Substrate DevHub <https://github.com/substrate-developer-hub>']
+edition = '2018'
+homepage = 'https://substrate.io'
+license = 'Unlicense'
+name = 'node-runtime'
+repository = 'https://github.com/substrate-developer-hub/substrate-node-template/'
 version = '2.0.0-alpha.8'
 
-[dependencies.balances]
-default-features = false
-git = 'https://github.com/paritytech/substrate.git'
-package = 'pallet-balances'
-tag = 'v2.0.0-alpha.8'
-version = '2.0.0-alpha.8'
+[package.metadata.docs.rs]
+targets = ['x86_64-unknown-linux-gnu']
+
+# Third party deps
 
 [dependencies.codec]
 default-features = false
@@ -18,56 +18,34 @@ features = ['derive']
 package = 'parity-scale-codec'
 version = '1.3.0'
 
-[dependencies.frame-executive]
-default-features = false
-git = 'https://github.com/paritytech/substrate.git'
-tag = 'v2.0.0-alpha.8'
-version = '2.0.0-alpha.8'
-
-[dependencies.frame-support]
-default-features = false
-git = 'https://github.com/paritytech/substrate.git'
-tag = 'v2.0.0-alpha.8'
-version = '2.0.0-alpha.8'
-
-[dependencies.grandpa]
-default-features = false
-git = 'https://github.com/paritytech/substrate.git'
-package = 'pallet-grandpa'
-tag = 'v2.0.0-alpha.8'
-version = '2.0.0-alpha.8'
-
-[dependencies.randomness-collective-flip]
-default-features = false
-git = 'https://github.com/paritytech/substrate.git'
-package = 'pallet-randomness-collective-flip'
-tag = 'v2.0.0-alpha.8'
-version = '2.0.0-alpha.8'
-
 [dependencies.serde]
 features = ['derive']
 optional = true
 version = '1.0.101'
 
-[dependencies.sp-api]
+[dependencies.integer-sqrt]
+version = '0.1.2'
+
+[dependencies.static_assertions]
+version = '1.1.0'
+
+# Primitives 
+
+[dependencies.sp-authority-discovery]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
+package = 'sp-authority-discovery'
 tag = 'v2.0.0-alpha.8'
 version = '2.0.0-alpha.8'
 
-[dependencies.sp-block-builder]
+[dependencies.sp-consensus-babe]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-tag = 'v2.0.0-alpha.8'
-version = '2.0.0-alpha.8'
-
-[dependencies.sp-consensus-aura]
-default-features = false
-git = 'https://github.com/paritytech/substrate.git'
+package = 'sp-consensus-babe'
 tag = 'v2.0.0-alpha.8'
 version = '0.8.0-alpha.8'
 
-[dependencies.sp-core]
+[dependencies.sp-block-builder]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
 tag = 'v2.0.0-alpha.8'
@@ -79,13 +57,32 @@ git = 'https://github.com/paritytech/substrate.git'
 tag = 'v2.0.0-alpha.8'
 version = '2.0.0-alpha.8'
 
-[dependencies.sp-io]
+[dependencies.node-primitives]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'node-primitives'
+tag = 'v2.0.0-alpha.8'
+version = '2.0.0-alpha.8'
+
+[dependencies.sp-offchain]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
 tag = 'v2.0.0-alpha.8'
 version = '2.0.0-alpha.8'
 
-[dependencies.sp-offchain]
+[dependencies.sp-core]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+tag = 'v2.0.0-alpha.8'
+version = '2.0.0-alpha.8'
+
+[dependencies.sp-std]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+tag = 'v2.0.0-alpha.8'
+version = '2.0.0-alpha.8'
+
+[dependencies.sp-api]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
 tag = 'v2.0.0-alpha.8'
@@ -97,13 +94,22 @@ git = 'https://github.com/paritytech/substrate.git'
 tag = 'v2.0.0-alpha.8'
 version = '2.0.0-alpha.8'
 
-[dependencies.sp-session]
+[dependencies.sp-staking]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
+package = 'sp-staking'
 tag = 'v2.0.0-alpha.8'
 version = '2.0.0-alpha.8'
 
-[dependencies.sp-std]
+[dependencies.sp-keyring]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'sp-keyring'
+tag = 'v2.0.0-alpha.8'
+version = '2.0.0-alpha.8'
+optional = true
+
+[dependencies.sp-session]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
 tag = 'v2.0.0-alpha.8'
@@ -121,81 +127,54 @@ git = 'https://github.com/paritytech/substrate.git'
 tag = 'v2.0.0-alpha.8'
 version = '2.0.0-alpha.8'
 
-[dependencies.sudo]
+[dependencies.sp-arithmetic]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-package = 'pallet-sudo'
 tag = 'v2.0.0-alpha.8'
 version = '2.0.0-alpha.8'
 
-[dependencies.system]
+
+
+# Frame Dependencies 
+
+[dependencies.frame-executive]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+tag = 'v2.0.0-alpha.8'
+version = '2.0.0-alpha.8'
+
+[dependencies.frame-benchmarking]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+tag = 'v2.0.0-alpha.8'
+version = '2.0.0-alpha.8'
+optional = true
+
+[dependencies.frame-support]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+tag = 'v2.0.0-alpha.8'
+version = '2.0.0-alpha.8'
+
+[dependencies.frame-system]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
 package = 'frame-system'
 tag = 'v2.0.0-alpha.8'
 version = '2.0.0-alpha.8'
 
-[dependencies.timestamp]
+[dependencies.frame-system-benchmarking]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-package = 'pallet-timestamp'
+package = 'frame-system-benchmarking'
 tag = 'v2.0.0-alpha.8'
 version = '2.0.0-alpha.8'
+optional = true
 
-[dependencies.transaction-payment]
+[dependencies.frame-system-rpc-runtime-api]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-package = 'pallet-transaction-payment'
-tag = 'v2.0.0-alpha.8'
-version = '2.0.0-alpha.8'
-
-[dependencies.node-primitives]
-default-features = false
-git = 'https://github.com/paritytech/substrate.git'
-package = 'node-primitives'
-tag = 'v2.0.0-alpha.8'
-version = '2.0.0-alpha.8'
-
-[dependencies.pallet-utility]
-default-features = false
-git = 'https://github.com/paritytech/substrate.git'
-package = 'pallet-utility'
-tag = 'v2.0.0-alpha.8'
-version = '2.0.0-alpha.8'
-
-[dependencies.pallet-session]
-default-features = false
-git = 'https://github.com/paritytech/substrate.git'
-package = 'pallet-session'
-tag = 'v2.0.0-alpha.8'
-features = ['historical']
-version = '2.0.0-alpha.8'
-
-[dependencies.pallet-babe]
-default-features = false
-git = 'https://github.com/paritytech/substrate.git'
-package = 'pallet-babe'
-tag = 'v2.0.0-alpha.8'
-version = '2.0.0-alpha.8'
-
-[dependencies.sp-consensus-babe]
-default-features = false
-git = 'https://github.com/paritytech/substrate.git'
-package = 'sp-consensus-babe'
-tag = 'v2.0.0-alpha.8'
-version = '0.8.0-alpha.8'
-
-[dependencies.pallet-im-online]
-default-features = false
-git = 'https://github.com/paritytech/substrate.git'
-package = 'pallet-im-online'
-tag = 'v2.0.0-alpha.8'
-version = '2.0.0-alpha.8'
-
-[dependencies.sp-authority-discovery]
-default-features = false
-git = 'https://github.com/paritytech/substrate.git'
-package = 'sp-authority-discovery'
+package = 'frame-system-rpc-runtime-api'
 tag = 'v2.0.0-alpha.8'
 version = '2.0.0-alpha.8'
 
@@ -212,6 +191,270 @@ git = 'https://github.com/paritytech/substrate.git'
 package = 'pallet-authorship'
 tag = 'v2.0.0-alpha.8'
 version = '2.0.0-alpha.8'
+
+[dependencies.pallet-babe]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-babe'
+tag = 'v2.0.0-alpha.8'
+version = '2.0.0-alpha.8'
+
+[dependencies.pallet-balances]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-balances'
+tag = 'v2.0.0-alpha.8'
+version = '2.0.0-alpha.8'
+
+[dependencies.pallet-collective]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-collective'
+tag = 'v2.0.0-alpha.8'
+version = '2.0.0-alpha.8'
+
+[dependencies.pallet-contracts]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-contracts'
+tag = 'v2.0.0-alpha.8'
+version = '2.0.0-alpha.8'
+
+[dependencies.pallet-contracts-primitives]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-contracts-primitives'
+tag = 'v2.0.0-alpha.8'
+version = '2.0.0-alpha.8'
+
+[dependencies.pallet-contracts-rpc-runtime-api]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-contracts-rpc-runtime-api'
+tag = 'v2.0.0-alpha.8'
+version = '0.8.0-alpha.8'
+
+
+[dependencies.pallet-democracy]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-democracy'
+tag = 'v2.0.0-alpha.8'
+version = '2.0.0-alpha.8'
+
+[dependencies.pallet-elections-phragmen]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-elections-phragmen'
+tag = 'v2.0.0-alpha.8'
+version = '2.0.0-alpha.8'
+
+[dependencies.pallet-finality-tracker]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-finality-tracker'
+tag = 'v2.0.0-alpha.8'
+version = '2.0.0-alpha.8'
+
+[dependencies.pallet-grandpa]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-grandpa'
+tag = 'v2.0.0-alpha.8'
+version = '2.0.0-alpha.8'
+
+[dependencies.pallet-im-online]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-im-online'
+tag = 'v2.0.0-alpha.8'
+version = '2.0.0-alpha.8'
+
+[dependencies.pallet-indices]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-indices'
+tag = 'v2.0.0-alpha.8'
+version = '2.0.0-alpha.8'
+
+[dependencies.pallet-identity]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-identity'
+tag = 'v2.0.0-alpha.8'
+version = '2.0.0-alpha.8'
+
+[dependencies.pallet-membership]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-membership'
+tag = 'v2.0.0-alpha.8'
+version = '2.0.0-alpha.8'
+
+[dependencies.pallet-offences]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-offences'
+tag = 'v2.0.0-alpha.8'
+version = '2.0.0-alpha.8'
+
+[dependencies.pallet-offences-benchmarking]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-offences-benchmarking'
+tag = 'v2.0.0-alpha.8'
+version = '2.0.0-alpha.8'
+optional = true
+
+[dependencies.pallet-randomness-collective-flip]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-randomness-collective-flip'
+tag = 'v2.0.0-alpha.8'
+version = '2.0.0-alpha.8'
+
+[dependencies.pallet-recovery]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-recovery'
+tag = 'v2.0.0-alpha.8'
+version = '2.0.0-alpha.8'
+
+[dependencies.pallet-session]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-session'
+tag = 'v2.0.0-alpha.8'
+version = '2.0.0-alpha.8'
+
+[dependencies.pallet-session-benchmarking]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-session-benchmarking'
+tag = 'v2.0.0-alpha.8'
+version = '2.0.0-alpha.8'
+optional = true
+
+
+[dependencies.pallet-staking]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-staking'
+tag = 'v2.0.0-alpha.8'
+version = '2.0.0-alpha.8'
+
+[dependencies.pallet-staking-reward-curve]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-staking-reward-curve'
+tag = 'v2.0.0-alpha.8'
+version = '2.0.0-alpha.8'
+
+[dependencies.pallet-scheduler]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-scheduler'
+tag = 'v2.0.0-alpha.8'
+version = '2.0.0-alpha.8'
+
+[dependencies.pallet-society]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-society'
+tag = 'v2.0.0-alpha.8'
+version = '2.0.0-alpha.8'
+
+[dependencies.pallet-sudo]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-sudo'
+tag = 'v2.0.0-alpha.8'
+version = '2.0.0-alpha.8'
+
+[dependencies.pallet-timestamp]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-timestamp'
+tag = 'v2.0.0-alpha.8'
+version = '2.0.0-alpha.8'
+
+
+[dependencies.pallet-treasury]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-treasury'
+tag = 'v2.0.0-alpha.8'
+version = '2.0.0-alpha.8'
+
+[dependencies.pallet-utility]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-utility'
+tag = 'v2.0.0-alpha.8'
+version = '2.0.0-alpha.8'
+
+[dependencies.pallet-transaction-payment]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-transaction-payment'
+tag = 'v2.0.0-alpha.8'
+version = '2.0.0-alpha.8'
+
+[dependencies.pallet-transaction-payment-rpc-runtime-api]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-transaction-payment-rpc-runtime-api'
+tag = 'v2.0.0-alpha.8'
+version = '2.0.0-alpha.8'
+
+[dependencies.pallet-vesting]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+package = 'pallet-vesting'
+tag = 'v2.0.0-alpha.8'
+version = '2.0.0-alpha.8'
+
+
+[build-dependencies.wasm-builder-runner]
+git = 'https://github.com/paritytech/substrate.git'
+package = 'substrate-wasm-builder-runner'
+tag = 'v2.0.0-alpha.8'
+version = '1.0.5'
+
+
+[dev-dependencies.sp-io]
+default-features = false
+git = 'https://github.com/paritytech/substrate.git'
+tag = 'v2.0.0-alpha.8'
+version = '2.0.0-alpha.8'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 [dependencies.multi-transfer]
 default-features = false
@@ -237,62 +480,90 @@ package = 'burn'
 path = '../pallets/burn'
 version = '2.0.0-alpha.8'
 
-[build-dependencies.wasm-builder-runner]
-git = 'https://github.com/paritytech/substrate.git'
-package = 'substrate-wasm-builder-runner'
-tag = 'v2.0.0-alpha.8'
-version = '1.0.5'
 
-[package]
-authors = ['Substrate DevHub <https://github.com/substrate-developer-hub>']
-edition = '2018'
-homepage = 'https://substrate.io'
-license = 'Unlicense'
-name = 'node-template-runtime'
-repository = 'https://github.com/substrate-developer-hub/substrate-node-template/'
-version = '2.0.0-alpha.8'
 
-[package.metadata.docs.rs]
-targets = ['x86_64-unknown-linux-gnu']
+
 
 [features]
 default = ['std']
 std = [
-    'aura/std',
-    'balances/std',
-    'codec/std',
-    'frame-executive/std',
-    'frame-support/std',
-    'grandpa/std',
-    'randomness-collective-flip/std',
-    'serde',
-    'sp-api/std',
-    'sp-block-builder/std',
-    'sp-consensus-aura/std',
-    'sp-core/std',
-    'sp-inherents/std',
-    'sp-io/std',
-    'sp-offchain/std',
-    'sp-runtime/std',
-    'sp-session/std',
-    'sp-std/std',
-    'sp-transaction-pool/std',
-    'sp-version/std',
-    'sudo/std',
-    'system/std',
-    'timestamp/std',
-    'transaction-payment/std',
-    'node-primitives/std',
-    'multi-transfer/std',
-    'prc20/std',
-    'delegation/std',
-    'burn/std',
-    'pallet-utility/std',
-    'pallet-session/std',
-    'sp-consensus-babe/std',
-    'pallet-babe/std',
-    'pallet-im-online/std',
-    'sp-authority-discovery/std',
-    'pallet-authority-discovery/std',
-    'pallet-authorship/std'
+	"sp-authority-discovery/std",
+	"pallet-authority-discovery/std",
+	"pallet-authorship/std",
+	"sp-consensus-babe/std",
+	"pallet-babe/std",
+	"pallet-balances/std",
+	"sp-block-builder/std",
+	"codec/std",
+	"pallet-collective/std",
+	"pallet-contracts/std",
+	"pallet-contracts-primitives/std",
+	"pallet-contracts-rpc-runtime-api/std",
+	"pallet-democracy/std",
+	"pallet-elections-phragmen/std",
+	"frame-executive/std",
+	"pallet-finality-tracker/std",
+	"pallet-grandpa/std",
+	"pallet-im-online/std",
+	"pallet-indices/std",
+	"sp-inherents/std",
+	"pallet-membership/std",
+	"pallet-identity/std",
+	"node-primitives/std",
+	"sp-offchain/std",
+	"pallet-offences/std",
+	"sp-core/std",
+	"pallet-randomness-collective-flip/std",
+	"sp-std/std",
+	"serde",
+	"pallet-session/std",
+	"sp-api/std",
+	"sp-runtime/std",
+	"sp-staking/std",
+	"pallet-staking/std",
+	"sp-keyring",
+	"sp-session/std",
+	"pallet-sudo/std",
+	"frame-support/std",
+	"frame-benchmarking/std",
+	"frame-system-rpc-runtime-api/std",
+	"frame-system/std",
+	"pallet-timestamp/std",
+	"pallet-transaction-payment-rpc-runtime-api/std",
+	"pallet-transaction-payment/std",
+	"pallet-treasury/std",
+	"sp-transaction-pool/std",
+	"pallet-utility/std",
+	"sp-version/std",
+	"pallet-society/std",
+	"pallet-recovery/std",
+	"pallet-vesting/std",
+	"pallet-elections-phragmen/std",
+    "burn/std",
+    "delegation/std",
+    "multi-transfer/std",
+    "prc20/std"
+]
+
+runtime-benchmarks = [
+	"frame-benchmarking",
+	"frame-support/runtime-benchmarks",
+	"frame-system/runtime-benchmarks",
+	"sp-runtime/runtime-benchmarks",
+	"pallet-balances/runtime-benchmarks",
+	"pallet-collective/runtime-benchmarks",
+	"pallet-democracy/runtime-benchmarks",
+	"pallet-elections-phragmen/runtime-benchmarks",
+	"pallet-identity/runtime-benchmarks",
+	"pallet-im-online/runtime-benchmarks",
+	"pallet-scheduler/runtime-benchmarks",
+	"pallet-society/runtime-benchmarks",
+	"pallet-staking/runtime-benchmarks",
+	"pallet-timestamp/runtime-benchmarks",
+	"pallet-treasury/runtime-benchmarks",
+	"pallet-utility/runtime-benchmarks",
+	"pallet-vesting/runtime-benchmarks",
+	"pallet-offences-benchmarking",
+	"pallet-session-benchmarking",
+	"frame-system-benchmarking",
 ]
