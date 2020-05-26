@@ -12,7 +12,7 @@ env:
     - CLIPPY_TOOLCHAIN=nightly
 script:
   - rustup update
-  - rustup target add wasm32-unknown-unknown --toolchain nightly
+  - rustup target add wasm32-unknown-unknown --toolchain stable 
   - cargo build --verbose --all
   - cd runtime; cargo test --verbose --all
 branches:
