@@ -6,12 +6,13 @@ language: rust
 cache:
   cargo: true
 rust:
-  - nightly
+  - stable 
 env:
   global:
     - CLIPPY_TOOLCHAIN=nightly
 script:
-  - rustup target add wasm32-unknown-unknown --toolchain nightly
+  - rustup update
+  - rustup target add wasm32-unknown-unknown --toolchain stable 
   - cargo build --verbose --all
   - cd runtime; cargo test --verbose --all
 branches:
