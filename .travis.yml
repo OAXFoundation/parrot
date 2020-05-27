@@ -10,10 +10,10 @@ rust:
 env:
   global:
     - CLIPPY_TOOLCHAIN=nightly
-script:
-  - rustup update stable
-  - rustup update nightly
+before_script:
+  - rustup component add clippy
   - rustup target add wasm32-unknown-unknown --toolchain nightly
+script:
   - cargo build --verbose --all
   - cd runtime; cargo test --verbose --all
 branches:
