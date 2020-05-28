@@ -103,11 +103,11 @@ impl<T: Trait> Module<T> {
 
 // This is to accept incoming deposits for fee payment, and broadcast a Deposit event
 impl<T: Trait> OnUnbalanced<NegativeImbalanceOf<T>> for Module<T> {
-	fn on_nonzero_unbalanced(amount: NegativeImbalanceOf<T>) {
-		let numeric_amount = amount.peek();
+    fn on_nonzero_unbalanced(amount: NegativeImbalanceOf<T>) {
+        let numeric_amount = amount.peek();
         // Must resolve into existing but better to be safe.
         let _ = T::Currency::resolve_creating(&Self::account_id(), amount);
-		Self::deposit_event(RawEvent::Deposit(numeric_amount));
+        Self::deposit_event(RawEvent::Deposit(numeric_amount));
     }
 }
 
@@ -115,7 +115,7 @@ impl<T: Trait> OnUnbalanced<NegativeImbalanceOf<T>> for Module<T> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use frame_support::{impl_outer_origin, impl_outer_event, parameter_types, weights::Weight};
+    use frame_support::{impl_outer_event, impl_outer_origin, parameter_types, weights::Weight};
     use sp_core::H256;
     use sp_runtime::{
         testing::Header,
@@ -139,7 +139,7 @@ mod tests {
         }
     }
 
-    // implement frame_system trait for test 
+    // implement frame_system trait for test
     #[derive(Clone, Eq, PartialEq)]
     pub struct Test;
     parameter_types! {
@@ -166,6 +166,7 @@ mod tests {
         type ExtrinsicBaseWeight = ();
         type AvailableBlockRatio = AvailableBlockRatio;
         type MaximumBlockLength = MaximumBlockLength;
+        type MaximumExtrinsicWeight = MaximumBlockWeight;
         type Version = ();
         type ModuleToIndex = ();
         type AccountData = pallet_balances::AccountData<u64>;
@@ -185,7 +186,7 @@ mod tests {
         type DustRemoval = ();
     }
 
-    // implement the burn trait for Test 
+    // implement the burn trait for Test
     parameter_types! {
         pub const BurnPeriod: u64 = 2;
     }
@@ -227,7 +228,7 @@ mod tests {
             assert_eq!(Burner::pot(), 100);
         });
     }
-    
+
     #[test]
     fn burn_works() {
         new_test_ext().execute_with(|| {

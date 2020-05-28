@@ -354,7 +354,8 @@ impl<T: Trait> Module<T> {
 mod tests {
     use super::*;
     use frame_support::{
-        assert_noop, assert_ok, impl_outer_origin, impl_outer_event, parameter_types, weights::Weight,
+        assert_noop, assert_ok, impl_outer_event, impl_outer_origin, parameter_types,
+        weights::Weight,
     };
     // use node_primitives::{AccountId, Signature};
     use sp_core::sr25519;
@@ -367,7 +368,7 @@ mod tests {
     use substrate_test_client::{self, AccountKeyring};
 
     mod prc20 {
-        pub use super::super::*; 
+        pub use super::super::*;
     }
     impl_outer_origin! {
         pub enum Origin for Test {}
@@ -412,6 +413,7 @@ mod tests {
         type ExtrinsicBaseWeight = ();
         type AvailableBlockRatio = AvailableBlockRatio;
         type MaximumBlockLength = MaximumBlockLength;
+        type MaximumExtrinsicWeight = MaximumBlockWeight;
         type Version = ();
         type ModuleToIndex = ();
         type AccountData = pallet_balances::AccountData<u64>;
@@ -441,7 +443,7 @@ mod tests {
         type AccountStore = System;
         type DustRemoval = ();
     }
-    
+
     pub struct ExtBuilder;
     type System = frame_system::Module<Test>;
     // type Balances = pallet_balances::Module<Test>;

@@ -1,21 +1,10 @@
-# .travis.yml
-#
-# parrot
-
 language: rust
-cache:
-  cargo: true
-rust:
-  - nightly 
-env:
-  global:
-    - CLIPPY_TOOLCHAIN=nightly
+rust: nightly-2019-08-15
+cache: cargo
 before_script:
-  - rustup component add clippy
-  - rustup target add wasm32-unknown-unknown --toolchain nightly
+    - rustup target add wasm32-unknown-unknown
+    - command -v wasm-gc || cargo install --git https://github.com/alexcrichton/wasm-gc --force
+    - rustup component add rustfmt
 script:
-  - cargo build --verbose --all
-  - cd runtime; cargo test --verbose --all
-branches:
-  only:
-    - master
+    - cargo build
+    - cargo test --all

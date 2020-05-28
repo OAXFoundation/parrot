@@ -112,9 +112,9 @@ decl_event!(
     }
 );
 
-/// custom functions for this module 
+/// custom functions for this module
 impl<T: Trait> Module<T> {
-    // function to verify a signature given a signed Delegated Transfer 
+    // function to verify a signature given a signed Delegated Transfer
     fn verify_dtd_signature(
         signed_dtd: SignedDelegatedTransferDetails<T::Signature, T::AccountId, BalanceOf<T>>,
     ) -> Result<(), &'static str> {
@@ -133,7 +133,8 @@ impl<T: Trait> Module<T> {
 mod tests {
     use super::*;
     use frame_support::{
-        assert_noop, assert_ok, impl_outer_origin, impl_outer_event, parameter_types, weights::Weight,
+        assert_noop, assert_ok, impl_outer_event, impl_outer_origin, parameter_types,
+        weights::Weight,
     };
     // use node_primitives::{AccountId, Signature};
     use sp_core::sr25519;
@@ -148,7 +149,7 @@ mod tests {
     mod delegation {
         pub use super::super::*;
     }
-    
+
     impl_outer_origin! {
         pub enum Origin for Test {}
     }
@@ -165,7 +166,7 @@ mod tests {
     /// An identifier for an account on this system.
     pub type AccountId = <Signature as Verify>::Signer;
 
-    // implement frame_system trait for test 
+    // implement frame_system trait for test
     #[derive(Clone, Eq, PartialEq)]
     pub struct Test;
 
@@ -193,6 +194,7 @@ mod tests {
         type ExtrinsicBaseWeight = ();
         type AvailableBlockRatio = AvailableBlockRatio;
         type MaximumBlockLength = MaximumBlockLength;
+        type MaximumExtrinsicWeight = MaximumBlockWeight;
         type Version = ();
         type ModuleToIndex = ();
         type AccountData = pallet_balances::AccountData<u64>;
@@ -206,7 +208,6 @@ mod tests {
         type Signature = Signature;
         type Currency = pallet_balances::Module<Self>;
     }
-
 
     parameter_types! {
         pub const ExistentialDeposit: u64 = 1;
