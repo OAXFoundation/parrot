@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.com/OAXFoundation/parrot.svg?token=jgyrLyyx469572phyxTx&branch=master)](https://travis-ci.com/OAXFoundation/parrot)
-
 # Substrate Node Template
 
 A new FRAME-based Substrate node, ready for hacking.
@@ -58,7 +56,7 @@ cargo run -- \
   --chain=local \
   --alice \
   --node-key 0000000000000000000000000000000000000000000000000000000000000001 \
-  --telemetry-url ws://telemetry.polkadot.io:1024 \
+  --telemetry-url 'ws://telemetry.polkadot.io:1024 0' \
   --validator
 ```
 
@@ -71,11 +69,34 @@ cargo run -- \
   --chain=local \
   --bob \
   --port 30334 \
-  --telemetry-url ws://telemetry.polkadot.io:1024 \
+  --telemetry-url 'ws://telemetry.polkadot.io:1024 0' \
   --validator
 ```
 
 Additional CLI usage options are available and may be shown by running `cargo run -- --help`.
+
+### Run in Docker
+
+First, install [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/).
+
+Then run the following command to start a single node development chain.
+
+```bash
+./scripts/docker_run.sh
+```
+
+This command will firstly compile your code, and then start a local development network. You can also replace the default command (`cargo build --release && ./target/release/node-template --dev --ws-external`) by appending your own. A few useful ones are as follow.
+
+```bash
+# Run Substrate node without re-compiling
+./scripts/docker_run.sh ./target/release/node-template --dev --ws-external
+
+# Purge the local dev chain
+./scripts/docker_run.sh ./target/release/node-template purge-chain --dev
+
+# Check whether the code is compilable
+./scripts/docker_run.sh cargo check
+```
 
 ## Advanced: Generate Your Own Substrate Node Template
 
@@ -102,30 +123,3 @@ git checkout <branch/tag/sha1>
 
 Noted though you will likely get faster and more thorough support if you stick with the releases
 provided in this repository.
-
-
-# UI 
-
-Please enter developer tab and paste the following JSON 
-
-```
-{
-  "TokenBalance": "u128",
-  "TokenId": "u128",
-  "Public": "AccountId",
-  "Signature": "H512",
-  "Offer": {
-    "offer_token": "TokenId",
-    "offer_amount": "TokenBalance",
-    "requested_token": "TokenId",
-    "requested_amount": "TokenBalance",
-    "nonce": "u128"
-  },
-  "SignedOffer": {
-    "offer": "Offer",
-    "signature": "H512",
-    "signer": "AccountId"
-  }
-}
-
-```
