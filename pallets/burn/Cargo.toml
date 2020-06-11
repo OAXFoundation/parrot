@@ -6,7 +6,7 @@ homepage = 'https://www.oax.org/'
 license = 'Unlicense'
 name = 'burn'
 repository = 'https://github.com/OAXFoundation/substrate-fees-poc'
-version = '2.0.0-rc2'
+version = '2.0.0-rc3'
 
 [package.metadata.docs.rs]
 targets = ['x86_64-unknown-linux-gnu']
@@ -24,44 +24,44 @@ version = '1.0.102'
 [dependencies.frame-support]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-tag = 'v2.0.0-rc2'
-version = '2.0.0-rc2'
+tag = 'v2.0.0-rc3'
+version = '2.0.0-rc3'
 
 [dependencies.frame-system]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-tag = 'v2.0.0-rc2'
-version = '2.0.0-rc2'
+tag = 'v2.0.0-rc3'
+version = '2.0.0-rc3'
 
 [dependencies.pallet-balances]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-tag = 'v2.0.0-rc2'
-version = '2.0.0-rc2'
+tag = 'v2.0.0-rc3'
+version = '2.0.0-rc3'
 
 [dependencies.sp-std]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-tag = 'v2.0.0-rc2'
-version = '2.0.0-rc2'
+tag = 'v2.0.0-rc3'
+version = '2.0.0-rc3'
 
 [dependencies.sp-runtime]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-tag = 'v2.0.0-rc2'
-version = '2.0.0-rc2'
+tag = 'v2.0.0-rc3'
+version = '2.0.0-rc3'
 
 [dev-dependencies.sp-core]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-tag = 'v2.0.0-rc2'
-version = '2.0.0-rc2'
+tag = 'v2.0.0-rc3'
+version = '2.0.0-rc3'
 
 [dev-dependencies.sp-io]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
-tag = 'v2.0.0-rc2'
-version = '2.0.0-rc2'
+tag = 'v2.0.0-rc3'
+version = '2.0.0-rc3'
 
 [features]
 default = ['std']
