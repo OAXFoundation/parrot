@@ -24,10 +24,10 @@ To launch a test simply run `jest prc20` , this will find the `prc20.spec.js` fi
 
 Current e2e test and names:
 
-- [prc20](https://github.com/OAXFoundation/substrate-fees-poc/blob/master/scripts/src/e2e_tests/prc20.spec.js) This has tests for atmoicSwap and prc20 
-- [burn](https://github.com/OAXFoundation/substrate-fees-poc/blob/master/scripts/src/e2e_tests/burn.spec.js)
-- [multiTransfer](https://github.com/OAXFoundation/substrate-fees-poc/blob/master/scripts/src/e2e_tests/multiTransfer.spec.js)
-- [feeDelegation](https://github.com/OAXFoundation/substrate-fees-poc/blob/master/scripts/src/e2e_tests/feeDelegation.spec.js)
+- [prc20](https://github.com/OAXFoundation/parrot/blob/master/js/src/e2e_tests/prc20.spec.js) This has tests for atmoicSwap and prc20 
+- [burn](https://github.com/OAXFoundation/parrot/blob/master/js/src/e2e_tests/burn.spec.js)
+- [multiTransfer](https://github.com/OAXFoundation/parrot/blob/master/js/src/e2e_tests/multiTransfer.spec.js)
+- [feeDelegation](https://github.com/OAXFoundation/parrot/blob/master/js/src/e2e_tests/feeDelegation.spec.js)
 
 
 
