@@ -201,12 +201,12 @@ tag = 'v2.0.0-rc3'
 version = '1.0.5'
 
 [package]
-authors = ['Substrate DevHub <https://github.com/substrate-developer-hub>']
+authors = ['OAX Foundation']
 edition = '2018'
-homepage = 'https://substrate.io'
+homepage = 'https://www.oax.org/'
 license = 'Unlicense'
-name = 'node-template-runtime'
-repository = 'https://github.com/substrate-developer-hub/substrate-node-template/'
+name = 'parrot-runtime'
+repository = 'https://github.com/OAXFoundation/parrot'
 version = '2.0.0-rc3'
 
 [package.metadata.docs.rs]

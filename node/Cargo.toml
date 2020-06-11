@@ -4,17 +4,17 @@ tag = 'v2.0.0-rc3'
 version = '2.0.0-rc3'
 
 [[bin]]
-name = 'node-template'
+name = 'parrot'
 
 [package]
-authors = ['Substrate DevHub <https://github.com/substrate-developer-hub>']
+authors = ['OAX Foundation']
 build = 'build.rs'
-description = 'Substrate node template'
+description = 'Parrot Node'
 edition = '2018'
-homepage = 'https://substrate.io'
+homepage = 'https://www.oax.org/'
 license = 'Unlicense'
-name = 'node-template'
-repository = 'https://github.com/substrate-developer-hub/substrate-node-template/'
+name = 'parrot'
+repository = 'https://github.com/substrate-developer-hub/substrate-parrot/'
 version = '2.0.0-rc3'
 
 [package.metadata.docs.rs]
@@ -26,7 +26,7 @@ log = '0.4.8'
 parking_lot = '0.10.0'
 structopt = '0.3.8'
 
-[dependencies.node-template-runtime]
+[dependencies.parrot-runtime]
 path = '../runtime'
 version = '2.0.0-rc3'
 

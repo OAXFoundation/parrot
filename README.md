@@ -1,6 +1,6 @@
-# Substrate Node Template
+# Parrot 
 
-A new FRAME-based Substrate node, ready for hacking.
+OAX's parachain
 
 ## Build
 
@@ -29,13 +29,13 @@ cargo build --release
 Purge any existing developer chain state:
 
 ```bash
-./target/release/node-template purge-chain --dev
+./target/release/parrot purge-chain --dev
 ```
 
 Start a development chain with:
 
 ```bash
-./target/release/node-template --dev
+./target/release/parrot --dev
 ```
 
 Detailed logs may be shown by running the node with the following environment variables set: `RUST_LOG=debug RUST_BACKTRACE=1 cargo run -- --dev`.
@@ -85,14 +85,14 @@ Then run the following command to start a single node development chain.
 ./scripts/docker_run.sh
 ```
 
-This command will firstly compile your code, and then start a local development network. You can also replace the default command (`cargo build --release && ./target/release/node-template --dev --ws-external`) by appending your own. A few useful ones are as follow.
+This command will firstly compile your code, and then start a local development network. You can also replace the default command (`cargo build --release && ./target/release/parrot --dev --ws-external`) by appending your own. A few useful ones are as follow.
 
 ```bash
 # Run Substrate node without re-compiling
-./scripts/docker_run.sh ./target/release/node-template --dev --ws-external
+./scripts/docker_run.sh ./target/release/parrot --dev --ws-external
 
 # Purge the local dev chain
-./scripts/docker_run.sh ./target/release/node-template purge-chain --dev
+./scripts/docker_run.sh ./target/release/parrot purge-chain --dev
 
 # Check whether the code is compilable
 ./scripts/docker_run.sh cargo check
@@ -104,7 +104,7 @@ A substrate node template is always based on a certain version of Substrate. You
 opening [Cargo.toml](Cargo.toml) and see the template referred to a specific Substrate commit(
 `rev` field), branch, or version.
 
-You can generate your own Substrate node-template based on a particular Substrate
+You can generate your own Substrate parrot based on a particular Substrate
 version/commit by running following commands:
 
 ```bash
@@ -112,13 +112,13 @@ version/commit by running following commands:
 git clone https://github.com/paritytech/substrate.git
 cd substrate
 
-# Switch to a particular branch or commit of the Substrate repo your node-template based on
+# Switch to a particular branch or commit of the Substrate repo your parrot based on
 git checkout <branch/tag/sha1>
 
 # Run the helper script to generate a node template.
 # This script compiles Substrate and takes a while to complete. It takes a relative file path
 #   from the current dir. to output the compressed node template.
-.maintain/node-template-release.sh ../node-template.tar.gz
+.maintain/parrot-release.sh ../parrot.tar.gz
 ```
 
 Noted though you will likely get faster and more thorough support if you stick with the releases
