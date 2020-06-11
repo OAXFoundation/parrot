@@ -49,7 +49,8 @@ impl SubstrateCli for Cli {
 		env!("CARGO_PKG_NAME")
 	}
 
-	fn load_spec(&self, id: &str) -> Result<Box<dyn sc_service::ChainSpec>, String> {
+	fn load_spec(&self, id: &str) 
+	-> Result<Box<dyn sc_service::ChainSpec>, String> {
 		Ok(match id {
 			"dev" => Box::new(chain_spec::development_config()),
 			"" | "local" => Box::new(chain_spec::local_testnet_config()),
@@ -67,7 +68,8 @@ pub fn run() -> sc_cli::Result<()> {
 	match &cli.subcommand {
 		Some(subcommand) => {
 			let runner = cli.create_runner(subcommand)?;
-			runner.run_subcommand(subcommand, |config| Ok(new_full_start!(config).0))
+			runner.run_subcommand(subcommand, 
+				|config| Ok(new_full_start!(config).0))
 		}
 		None => {
 			let runner = cli.create_runner(&cli.run)?;

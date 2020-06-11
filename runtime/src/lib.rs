@@ -1,7 +1,9 @@
-//! The Substrate Node Template runtime. This can be compiled with `#[no_std]`, ready for Wasm.
+//! The Substrate Node Template runtime. This can be compiled with 
+//! `#[no_std]`, ready for Wasm.
 
 #![cfg_attr(not(feature = "std"), no_std)]
-// `construct_runtime!` does a lot of recursion and requires us to increase the limit to 256.
+// `construct_runtime!` does a lot of recursion and 
+// requires us to increase the limit to 256.
 #![recursion_limit="256"]
 
 // Make the WASM binary available.
@@ -12,13 +14,13 @@ use core::convert::TryFrom;
 use sp_std::prelude::*;
 use sp_core::{crypto::KeyTypeId, OpaqueMetadata};
 use sp_runtime::{
-	ApplyExtrinsicResult, generic, create_runtime_str, impl_opaque_keys, MultiSignature,
+	ApplyExtrinsicResult, generic, create_runtime_str, impl_opaque_keys, 
+	MultiSignature, Perquintill, 
 	transaction_validity::{TransactionValidity, TransactionSource},
-};
-use sp_runtime::traits::{
-	BlakeTwo256, Block as BlockT, IdentityLookup, Verify, IdentifyAccount, NumberFor, Saturating,
-};
-use sp_runtime::{Perquintill};
+	traits::{
+		BlakeTwo256, Block as BlockT, IdentityLookup, Verify, 
+		IdentifyAccount, NumberFor, Saturating,
+	}};
 use sp_api::impl_runtime_apis;
 use sp_consensus_aura::sr25519::AuthorityId as AuraId;
 use grandpa::{AuthorityId as GrandpaId, AuthorityList as GrandpaAuthorityList};
@@ -35,10 +37,12 @@ pub use balances::Call as BalancesCall;
 pub use sp_runtime::{Permill, Perbill};
 pub use frame_support::{
 	ConsensusEngineId, construct_runtime, parameter_types, StorageValue,
-	traits::{Currency, Imbalance, OnUnbalanced, FindAuthor, KeyOwnerProofSystem, Randomness},
+	traits::{Currency, Imbalance, OnUnbalanced, FindAuthor, KeyOwnerProofSystem, 
+		Randomness},
 	weights::{
 		Weight, IdentityFee,
-		constants::{BlockExecutionWeight, ExtrinsicBaseWeight, RocksDbWeight, WEIGHT_PER_SECOND},
+		constants::{BlockExecutionWeight, ExtrinsicBaseWeight, RocksDbWeight, 
+			WEIGHT_PER_SECOND},
 	},
 };
 
@@ -48,7 +52,8 @@ pub use delegation;
 pub use multi_transfer;
 pub use prc20;
 
-/// Implementations of some helper traits passed into runtime modules as associated types.
+/// Implementations of some helper traits passed into runtime modules 
+/// as associated types.
 pub mod impls;
 use impls::TargetedFeeAdjustment;
 use impls::Author; 
@@ -60,14 +65,18 @@ use constants::currency::*;
 /// An index to a block.
 pub type BlockNumber = u32;
 
-/// Alias to 512-bit hash when used in the context of a transaction signature on the chain.
+/// Alias to 512-bit hash when used in the context of a transaction 
+/// signature on the chain.
 pub type Signature = MultiSignature;
 
-/// Some way of identifying an account on the chain. We intentionally make it equivalent
+/// Some way of identifying an account on the chain. We intentionally 
+/// make it equivalent
 /// to the public key of our transaction signing scheme.
-pub type AccountId = <<Signature as Verify>::Signer as IdentifyAccount>::AccountId;
+pub type AccountId = <<Signature as Verify>::Signer as 
+	IdentifyAccount>::AccountId;
 
-/// The type for looking up accounts. We don't expect more than 4 billion of them, but you
+/// The type for looking up accounts. We don't expect more than
+///  4 billion of them, but you
 /// never know...
 pub type AccountIndex = u32;
 
@@ -83,10 +92,11 @@ pub type Hash = sp_core::H256;
 /// Digest item type.
 pub type DigestItem = generic::DigestItem<Hash>;
 
-/// Opaque types. These are used by the CLI to instantiate machinery that don't need to know
-/// the specifics of the runtime. They can then be made to be agnostic over specific formats
-/// of data like extrinsics, allowing for them to continue syncing the network through upgrades
-/// to even the core data structures.
+/// Opaque types. These are used by the CLI to instantiate machinery that 
+/// don't need to know the specifics of the runtime. They can then be made to 
+/// be agnostic over specific formats of data like extrinsics, allowing for
+///  them to continue syncing the network through upgrades to even the
+///  core data structures.
 pub mod opaque {
 	use super::*;
 
@@ -127,7 +137,8 @@ pub const MINUTES: BlockNumber = 60_000 / (MILLISECS_PER_BLOCK as BlockNumber);
 pub const HOURS: BlockNumber = MINUTES * 60;
 pub const DAYS: BlockNumber = HOURS * 24;
 
-/// The version information used to identify this runtime when compiled natively.
+/// The version information used to identify this runtime when 
+/// compiled natively.
 #[cfg(feature = "std")]
 pub fn native_version() -> NativeVersion {
 	NativeVersion {
@@ -141,12 +152,14 @@ type NegativeImbalance = <Balances as Currency<AccountId>>::NegativeImbalance;
 
 pub struct DealWithFees;
 impl OnUnbalanced<NegativeImbalance> for DealWithFees {
-    fn on_unbalanceds<B>(mut fees_then_tips: impl Iterator<Item = NegativeImbalance>) {
+	fn on_unbalanceds<B>(mut fees_then_tips: 
+			impl Iterator<Item = NegativeImbalance>) {
         if let Some(fees) = fees_then_tips.next() {
             // for fees, 80% to treasury, 20% to author
             let mut split = fees.ration(80, 20);
             if let Some(tips) = fees_then_tips.next() {
-                // for tips, if any, 80% to treasury, 20% to author (though this can be anything)
+				// for tips, if any, 80% to treasury, 20% to author 
+				// (though this can be anything)
                 tips.ration_merge_into(80, 20, &mut split);
             }
             //TODO: Switch consensus to babe, or pay the block author 80%!
@@ -175,7 +188,8 @@ impl system::Trait for Runtime {
 	type AccountId = AccountId;
 	/// The aggregated dispatch type that is available for extrinsics.
 	type Call = Call;
-	/// The lookup mechanism to get account ID from whatever is passed in dispatchers.
+	/// The lookup mechanism to get account ID from whatever is 
+	/// passed in dispatchers.
 	type Lookup = IdentityLookup<AccountId>;
 	/// The index type for storing how many extrinsics an account has signed.
 	type Index = Index;
@@ -191,25 +205,31 @@ impl system::Trait for Runtime {
 	type Event = Event;
 	/// The ubiquitous origin type.
 	type Origin = Origin;
-	/// Maximum number of block number to block hash mappings to keep (oldest pruned first).
+	/// Maximum number of block number to block hash mappings to keep 
+	/// (oldest pruned first).
 	type BlockHashCount = BlockHashCount;
 	/// Maximum weight of each block.
 	type MaximumBlockWeight = MaximumBlockWeight;
 	/// The weight of database operations that the runtime can invoke.
 	type DbWeight = RocksDbWeight;
-	/// The weight of the overhead invoked on the block import process, independent of the
+	/// The weight of the overhead invoked on the block import process, 
+	/// independent of the
 	/// extrinsics included in that block.
 	type BlockExecutionWeight = BlockExecutionWeight;
-	/// The base weight of any extrinsic processed by the runtime, independent of the
-	/// logic of that extrinsic. (Signature verification, nonce increment, fee, etc...)
+	/// The base weight of any extrinsic processed by the runtime, independent 
+	/// of the logic of that extrinsic.
+	///  (Signature verification, nonce increment, fee, etc...)
 	type ExtrinsicBaseWeight = ExtrinsicBaseWeight;
-	/// The maximum weight that a single extrinsic of `Normal` dispatch class can have,
-	/// idependent of the logic of that extrinsics. (Roughly max block weight - average on
-	/// initialize cost).
+	/// The maximum weight that a single extrinsic of `Normal` dispatch 
+	/// class can have,
+	/// idependent of the logic of that extrinsics. (Roughly max block weight 
+	/// - average on initialize cost).
 	type MaximumExtrinsicWeight = MaximumExtrinsicWeight;
-	/// Maximum size of all encoded transactions (in bytes) that are allowed in one block.
+	/// Maximum size of all encoded transactions (in bytes) that are 
+	/// allowed in one block.
 	type MaximumBlockLength = MaximumBlockLength;
-	/// Portion of the block weight that is available to all normal transactions.
+	/// Portion of the block weight that is available to all normal 
+	/// transactions.
 	type AvailableBlockRatio = AvailableBlockRatio;
 	/// Version of the runtime.
 	type Version = Version;
@@ -236,11 +256,13 @@ impl grandpa::Trait for Runtime {
 	type KeyOwnerProofSystem = ();
 
 	type KeyOwnerProof =
-		<Self::KeyOwnerProofSystem as KeyOwnerProofSystem<(KeyTypeId, GrandpaId)>>::Proof;
+		<Self::KeyOwnerProofSystem as 
+			KeyOwnerProofSystem<(KeyTypeId, GrandpaId)>>::Proof;
 
-	type KeyOwnerIdentification = <Self::KeyOwnerProofSystem as KeyOwnerProofSystem<(
-		KeyTypeId,
-		GrandpaId,
+	type KeyOwnerIdentification = <Self::KeyOwnerProofSystem as 
+		KeyOwnerProofSystem<(
+			KeyTypeId,
+			GrandpaId,
 	)>>::IdentificationTuple;
 
 	type HandleEquivocation = ();
@@ -299,7 +321,8 @@ impl pallet_authorship::Trait for Runtime {
 	type FilterUncle = ();
 	type EventHandler = ();
 }
-// This struct is (supposed to be) an adapter type that converts an AuraId into an AccountId
+// This struct is (supposed to be) an adapter type that converts an AuraId 
+// into an AccountId
 pub struct AuraAccountAdapter;
 
 impl FindAuthor<AccountId> for AuraAccountAdapter {
@@ -313,7 +336,8 @@ impl FindAuthor<AccountId> for AuraAccountAdapter {
 }
 
 
-// This is a configurable constant for the multiTransfer limit (max number of transfers in a single multi_transfer)
+// This is a configurable constant for the multiTransfer limit (max number 
+//of transfers in a single multi_transfer)
 parameter_types! {
     pub const MaxTransfers: u8 = 100;
 }
@@ -342,7 +366,8 @@ impl prc20::Trait for Runtime {
     type MaxTransfers = MaxTransfers;
 }
 
-// This is a configurable constant, that sets the number of blocks to run a burn (every 5 blocks)
+// This is a configurable constant, that sets the number of blocks to 
+// run a burn (every 5 blocks)
 parameter_types! {
     pub const BurnPeriod: BlockNumber = 1 * MINUTES;
 }
@@ -360,7 +385,8 @@ construct_runtime!(
 		UncheckedExtrinsic = UncheckedExtrinsic
 	{
 		System: system::{Module, Call, Config, Storage, Event<T>},
-		RandomnessCollectiveFlip: randomness_collective_flip::{Module, Call, Storage},
+		RandomnessCollectiveFlip: randomness_collective_flip::
+			{Module, Call, Storage},
 		Timestamp: timestamp::{Module, Call, Storage, Inherent},
 		Aura: aura::{Module, Config<T>, Inherent(Timestamp)},
 		Grandpa: grandpa::{Module, Call, Storage, Config, Event},
@@ -397,11 +423,14 @@ pub type SignedExtra = (
 	transaction_payment::ChargeTransactionPayment<Runtime>
 );
 /// Unchecked extrinsic type as expected by this runtime.
-pub type UncheckedExtrinsic = generic::UncheckedExtrinsic<Address, Call, Signature, SignedExtra>;
+pub type UncheckedExtrinsic = generic::UncheckedExtrinsic<
+	Address, Call, Signature, SignedExtra>;
 /// Extrinsic type that has already been checked.
-pub type CheckedExtrinsic = generic::CheckedExtrinsic<AccountId, Call, SignedExtra>;
+pub type CheckedExtrinsic = generic::CheckedExtrinsic<
+	AccountId, Call, SignedExtra>;
 /// Executive: handles dispatch to the various modules.
-pub type Executive = frame_executive::Executive<Runtime, Block, system::ChainContext<Runtime>, Runtime, AllModules>;
+pub type Executive = frame_executive::Executive<
+	Runtime, Block, system::ChainContext<Runtime>, Runtime, AllModules>;
 
 impl_runtime_apis! {
 	impl sp_api::Core<Block> for Runtime {
@@ -425,7 +454,8 @@ impl_runtime_apis! {
 	}
 
 	impl sp_block_builder::BlockBuilder<Block> for Runtime {
-		fn apply_extrinsic(extrinsic: <Block as BlockT>::Extrinsic) -> ApplyExtrinsicResult {
+		fn apply_extrinsic(extrinsic: <Block as BlockT>::Extrinsic) 
+		-> ApplyExtrinsicResult {
 			Executive::apply_extrinsic(extrinsic)
 		}
 
@@ -433,7 +463,8 @@ impl_runtime_apis! {
 			Executive::finalize_block()
 		}
 
-		fn inherent_extrinsics(data: sp_inherents::InherentData) -> Vec<<Block as BlockT>::Extrinsic> {
+		fn inherent_extrinsics(data: sp_inherents::InherentData) 
+		-> Vec<<Block as BlockT>::Extrinsic> {
 			data.create_extrinsics()
 		}
 
@@ -449,7 +480,8 @@ impl_runtime_apis! {
 		}
 	}
 
-	impl sp_transaction_pool::runtime_api::TaggedTransactionQueue<Block> for Runtime {
+	impl sp_transaction_pool::runtime_api::
+		TaggedTransactionQueue<Block> for Runtime {
 		fn validate_transaction(
 			source: TransactionSource,
 			tx: <Block as BlockT>::Extrinsic,
