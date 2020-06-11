@@ -1,17 +1,20 @@
-//! Service and ServiceFactory implementation. Specialized wrapper over substrate service.
+//! Service and ServiceFactory implementation. 
+//! Specialized wrapper over substrate service.
 
 use std::sync::Arc;
 use std::time::Duration;
 use sc_client_api::ExecutorProvider;
 use sc_consensus::LongestChain;
 use parrot_runtime::{self, opaque::Block, RuntimeApi};
-use sc_service::{error::{Error as ServiceError}, AbstractService, Configuration, ServiceBuilder};
+use sc_service::{error::{Error as ServiceError}, AbstractService, 
+	Configuration, ServiceBuilder};
 use sp_inherents::InherentDataProviders;
 use sc_executor::native_executor_instance;
 pub use sc_executor::NativeExecutor;
 use sp_consensus_aura::sr25519::{AuthorityPair as AuraPair};
 use sc_finality_grandpa::{
-	FinalityProofProvider as GrandpaFinalityProofProvider, StorageAndProofProvider, SharedVoterState,
+	FinalityProofProvider as GrandpaFinalityProofProvider, 
+	StorageAndProofProvider, SharedVoterState,
 };
 
 // Our native executor instance.
@@ -23,7 +26,8 @@ native_executor_instance!(
 
 /// Starts a `ServiceBuilder` for a full service.
 ///
-/// Use this macro if you don't actually need the full service, but just the builder in order to
+/// Use this macro if you don't actually need the full service, but just 
+/// the builder in order to
 /// be able to perform chain operations.
 macro_rules! new_full_start {
 	($config:expr) => {{
@@ -31,7 +35,8 @@ macro_rules! new_full_start {
 		use sp_consensus_aura::sr25519::AuthorityPair as AuraPair;
 
 		let mut import_setup = None;
-		let inherent_data_providers = sp_inherents::InherentDataProviders::new();
+		let inherent_data_providers = sp_inherents::
+			InherentDataProviders::new();
 
 		let builder = sc_service::ServiceBuilder::new_full::<
 			parrot_runtime::opaque::Block,
@@ -62,17 +67,20 @@ macro_rules! new_full_start {
 				let select_chain = select_chain.take()
 					.ok_or_else(|| sc_service::Error::SelectChainRequired)?;
 
-				let (grandpa_block_import, grandpa_link) = sc_finality_grandpa::block_import(
+				let (grandpa_block_import, grandpa_link) = 
+					sc_finality_grandpa::block_import(
 					client.clone(),
 					&(client.clone() as Arc<_>),
 					select_chain,
 				)?;
 
-				let aura_block_import = sc_consensus_aura::AuraBlockImport::<_, _, _, AuraPair>::new(
+				let aura_block_import = sc_consensus_aura::
+					AuraBlockImport::<_, _, _, AuraPair>::new(
 					grandpa_block_import.clone(), client.clone(),
 				);
 
-				let import_queue = sc_consensus_aura::import_queue::<_, _, _, AuraPair, _>(
+				let import_queue = sc_consensus_aura::
+					import_queue::<_, _, _, AuraPair, _>(
 					sc_consensus_aura::slot_duration(&*client)?,
 					aura_block_import,
 					Some(Box::new(grandpa_block_import.clone())),
@@ -93,23 +101,28 @@ macro_rules! new_full_start {
 }
 
 /// Builds a new service for a full client.
-pub fn new_full(config: Configuration) -> Result<impl AbstractService, ServiceError> {
+pub fn new_full(config: Configuration) 
+-> Result<impl AbstractService, ServiceError> {
 	let role = config.role.clone();
 	let force_authoring = config.force_authoring;
 	let name = config.network.node_name.clone();
 	let disable_grandpa = config.disable_grandpa;
 
-	let (builder, mut import_setup, inherent_data_providers) = new_full_start!(config);
+	let (builder, mut import_setup, inherent_data_providers) = 
+		new_full_start!(config);
 
 	let (block_import, grandpa_link) =
 		import_setup.take()
-			.expect("Link Half and Block Import are present for Full Services or setup failed before. qed");
+			.expect("Link Half and Block Import are present for \
+			Full Services or setup failed before. qed");
 
 	let service = builder
 		.with_finality_proof_provider(|client, backend| {
-			// GenesisAuthoritySetProvider is implemented for StorageAndProofProvider
+			// GenesisAuthoritySetProvider is implemented
+			// for StorageAndProofProvider
 			let provider = client as Arc<dyn StorageAndProofProvider<_, _>>;
-			Ok(Arc::new(GrandpaFinalityProofProvider::new(backend, provider)) as _)
+			Ok(Arc::new(GrandpaFinalityProofProvider::
+				new(backend, provider)) as _)
 		})?
 		.build()?;
 
@@ -125,9 +138,11 @@ pub fn new_full(config: Configuration) -> Result<impl AbstractService, ServiceEr
 			.ok_or(ServiceError::SelectChainRequired)?;
 
 		let can_author_with =
-			sp_consensus::CanAuthorWithNativeVersion::new(client.executor().clone());
+			sp_consensus::CanAuthorWithNativeVersion::new(
+				client.executor().clone());
 
-		let aura = sc_consensus_aura::start_aura::<_, _, _, _, _, AuraPair, _, _, _>(
+		let aura = sc_consensus_aura::start_aura::
+			<_, _, _, _, _, AuraPair, _, _, _>(
 			sc_consensus_aura::slot_duration(&*client)?,
 			client,
 			select_chain,
@@ -177,7 +192,8 @@ pub fn new_full(config: Configuration) -> Result<impl AbstractService, ServiceEr
 			network: service.network(),
 			inherent_data_providers: inherent_data_providers.clone(),
 			telemetry_on_connect: Some(service.telemetry_on_connect_stream()),
-			voting_rule: sc_finality_grandpa::VotingRulesBuilder::default().build(),
+			voting_rule: sc_finality_grandpa::
+				VotingRulesBuilder::default().build(),
 			prometheus_registry: service.prometheus_registry(),
 			shared_voter_state: SharedVoterState::empty(),
 		};
@@ -200,7 +216,8 @@ pub fn new_full(config: Configuration) -> Result<impl AbstractService, ServiceEr
 }
 
 /// Builds a new service for a light client.
-pub fn new_light(config: Configuration) -> Result<impl AbstractService, ServiceError> {
+pub fn new_light(config: Configuration) 
+-> Result<impl AbstractService, ServiceError> {
 	let inherent_data_providers = InherentDataProviders::new();
 
 	ServiceBuilder::new_light::<Block, RuntimeApi, Executor>(config)?
@@ -209,7 +226,8 @@ pub fn new_light(config: Configuration) -> Result<impl AbstractService, ServiceE
 		})?
 		.with_transaction_pool(|builder| {
 			let fetcher = builder.fetcher()
-				.ok_or_else(|| "Trying to start light transaction pool without active fetcher")?;
+				.ok_or_else(|| "Trying to start light transaction \
+				pool without active fetcher")?;
 
 			let pool_api = sc_transaction_pool::LightChainApi::new(
 				builder.client().clone(),
@@ -235,7 +253,8 @@ pub fn new_light(config: Configuration) -> Result<impl AbstractService, ServiceE
 		| {
 			let fetch_checker = fetcher
 				.map(|fetcher| fetcher.checker().clone())
-				.ok_or_else(|| "Trying to start light import queue without active fetch checker")?;
+				.ok_or_else(|| "Trying to start light import queue \
+				without active fetch checker")?;
 			let grandpa_block_import = sc_finality_grandpa::light_block_import(
 				client.clone(),
 				backend,
@@ -246,7 +265,8 @@ pub fn new_light(config: Configuration) -> Result<impl AbstractService, ServiceE
 			let finality_proof_request_builder =
 				finality_proof_import.create_finality_proof_request_builder();
 
-			let import_queue = sc_consensus_aura::import_queue::<_, _, _, AuraPair, _>(
+			let import_queue = sc_consensus_aura::
+				import_queue::<_, _, _, AuraPair, _>(
 				sc_consensus_aura::slot_duration(&*client)?,
 				grandpa_block_import,
 				None,
@@ -260,9 +280,11 @@ pub fn new_light(config: Configuration) -> Result<impl AbstractService, ServiceE
 			Ok((import_queue, finality_proof_request_builder))
 		})?
 		.with_finality_proof_provider(|client, backend| {
-			// GenesisAuthoritySetProvider is implemented for StorageAndProofProvider
+			// GenesisAuthoritySetProvider is implemented for 
+			// StorageAndProofProvider
 			let provider = client as Arc<dyn StorageAndProofProvider<_, _>>;
-			Ok(Arc::new(GrandpaFinalityProofProvider::new(backend, provider)) as _)
+			Ok(Arc::new(GrandpaFinalityProofProvider::
+				new(backend, provider)) as _)
 		})?
 		.build()
 }
