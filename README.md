@@ -1,8 +1,20 @@
-# Parrot 
+# OAX Parrot 
 
-OAX's parachain
+This is OAX's parachain with a few unique features listed below
 
-## Build
+## Features 
+
+- [x] ERC20 Standard 
+- [x] Atomic Swap 
+- [x] Multi-Transfer 
+- [x] Automatic Fee Burn 
+- [x] Fee Delegation
+
+## Necessary Custom Types 
+
+[Types.json](https://github.com/OAXFoundation/parrot/blob/master/js/src/types/types.json)
+
+## Pre-reqs
 
 Install Rust:
 
@@ -16,11 +28,46 @@ Initialize your Wasm Build environment:
 ./scripts/init.sh
 ```
 
-Build Wasm and native code:
 
-```bash
-cargo build --release
-```
+## Running the Node 
+
+1) `cargo build` (add `--release` for production build)
+2) `./target/debug/parrot --alice --dev`
+3) If you want to re-launch the chain, you can start fresh by purging it `./target/debug/parrot purge-chain --dev`
+
+## Testing Custom Pallets
+
+1) `cargo test`
+2) To run individual test, you can run `cargo test MODULE` , so if you wanted to test the burn module you could run `cargo test burn`
+
+## FrontEnd
+
+Currently we do not have a custom front-end for this chain. You can use poladot-js/apps as a front end for the chain without any issues. 
+
+The last tested stable release: https://github.com/polkadot-js/apps/commit/63139f15196ae4abb0433e26afc39dd082e48715
+
+
+## End to End Tests + Demos 
+
+Instructions to run these tests and demos are in the [REAMDE](https://github.com/OAXFoundation/parrot/blob/master/js/README.md)
+
+
+
+## OAX Custom Parachain Feature Implementations 
+
+[ERC20 Standard](https://github.com/OAXFoundation/parrot/blob/master/pallets/prc20/src/lib.rs)
+
+[Atomic Swap](https://github.com/OAXFoundation/parrot/blob/master/pallets/prc20/src/lib.rs#L220)
+
+[Native Multi Transfer](https://github.com/OAXFoundation/parrot/blob/master/pallets/multi_transfer/src/lib.rs) 
+
+[PRC20 Multi Transfer](https://github.com/OAXFoundation/parrot/blob/master/pallets/prc20/src/lib.rs#L234)
+
+[Automatic Fee Burn](https://github.com/OAXFoundation/parrot/blob/master/pallets/burn/src/lib.rs)
+
+[Fee Delegation](https://github.com/OAXFoundation/parrot/blob/master/pallets/delegation/src/lib.rs)
+
+
 
 ## Run
 
