@@ -9,7 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@polkadot/api": "1.16.1",
+    "@polkadot/api": "1.18.1",
     "@polkadot/util": "^2.8.1",
     "@polkadot/keyring": "2.10.1",
     "bn.js": "^5.1.1"
