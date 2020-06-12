@@ -1,21 +1,21 @@
 {
-  "name": "parrot-client",
-  "version": "1.0.0",
-  "description": "OAX Parrot Parachain Client",
-  "main": "src/parrot/interface.js",
-  "scripts": {
-    "test": ""
-  },
-  "author": "OAX Foundation",
-  "license": "ISC",
-  "dependencies": {
-    "@polkadot/api": "1.18.1",
-    "@polkadot/util": "2.13.1",
-    "bn.js": "^5.1.1"
-  },
-  "devDependencies": {
-    "eslint": "^6.8.0",
-    "eslint-config-airbnb-base": "^14.1.0",
-    "eslint-plugin-import": "^2.20.2"
-  }
+    "name": "parrot-client",
+    "version": "1.0.0",
+    "description": "OAX Parrot Parachain Client",
+    "main": "src/parrot/interface.js",
+    "scripts": {
+        "test": ""
+    },
+    "author": "OAX Foundation",
+    "license": "ISC",
+    "dependencies": {
+        "@polkadot/api": "1.18.1",
+        "@polkadot/util": "2.13.1",
+        "bn.js": "^5.1.1"
+    },
+    "devDependencies": {
+        "eslint": "^7.2.0",
+        "eslint-config-airbnb-base": "^14.2.0",
+        "eslint-plugin-import": "^2.21.2"
+    }
 }

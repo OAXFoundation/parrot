@@ -1,20 +1,20 @@
 {
-  "name": "parrot-demo",
-  "version": "1.0.0",
-  "description": "Demo's for OAX Parrot Parachain",
-  "main": "",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "OAX Foundation",
-  "license": "ISC",
-  "dependencies": {
-    "bn.js": "^5.1.2",
-    "parrot-client": "file:../parrot-client"
-  },
-  "devDependencies": {
-    "eslint": "^6.8.0",
-    "eslint-config-airbnb-base": "^14.1.0",
-    "eslint-plugin-import": "^2.20.2"
-  }
+    "name": "parrot-demo",
+    "version": "1.0.0",
+    "description": "Demo's for OAX Parrot Parachain",
+    "main": "",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "OAX Foundation",
+    "license": "ISC",
+    "dependencies": {
+        "bn.js": "^5.1.2",
+        "parrot-client": "file:../parrot-client"
+    },
+    "devDependencies": {
+        "eslint": "^6.8.0",
+        "eslint-config-airbnb-base": "^14.1.0",
+        "eslint-plugin-import": "^2.20.2"
+    }
 }

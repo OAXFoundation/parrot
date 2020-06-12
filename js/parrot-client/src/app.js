@@ -2,7 +2,6 @@
 // this is a custom polkadot js api wrapper
 const ParrotInterface = require('./parrot/interface');
 
-
 // demo for an atomic swap of tokens (this demo creates two new tokens)
 async function testConnect() {
     // Get a new instance of the interface
@@ -16,7 +15,6 @@ async function testConnect() {
         DAVE;
     [ALICE, BOB, CHARLIE, DAVE] = parrot.keyRingPairs;
 }
-
 
 async function main() {
     await testConnect();
