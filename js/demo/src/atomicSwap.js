@@ -1,8 +1,6 @@
 // ATOMIC SWAP DEMO for PRC20 TOKENS
 // this is a custom polkadot js api wrapper
-const ParrotInterface = require('../parrot/interface');
-// This imports the json types.json (used to define custom types)
-const ADDITIONAL_TYPES = require('../types/types.json');
+const ParrotInterface = require('parrot-client');
 
 // sleep time between actions
 const SLEEP = 6000;
@@ -29,7 +27,7 @@ function sleep(ms) {
 // demo for an atomic swap of tokens (this demo creates two new tokens)
 async function swapDemo() {
   // Get a new instance of the interface
-  const parrot = new ParrotInterface(ADDITIONAL_TYPES);
+  const parrot = new ParrotInterface();
   // Init api
   await parrot.initApi();
   // Init keyrings

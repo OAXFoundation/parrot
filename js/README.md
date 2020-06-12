@@ -1,40 +1,51 @@
-# Demo Scripts & E2E Tests
+# Parrot Client  + E2E Tests + Demo Scripts 
 
-These scripts can be used for using additional methods on the OAX Parachain with @polkadot-js/api
 
-All these tests and script require you to have a local node running. Please follow instructions in the previous page to run a local instance of this chain before proceeding. 
+## Parrot Client 
 
-## Installation 
+This is a simple node package that uses @polkadot/api and implements the custom methods needed to interact with the OAX parachain.
 
-```npm install``` in the current dir 
+To learn how to use this package, you can look at the demo scripts for examples, or for the simplest connection example look at [this](https://github.com/OAXFoundation/parrot/blob/master/js/parrot-client/src/app.js)
 
-## E2E tests 
+## E2E Tests 
 
-Each test needs to be run individually to avoid one test interfering with another. This is because currently we are not waiting for events and just sleeping. In the future this should be updated. This is done using the ```runInBand``` cli arguement of jest which can be seen in this projects `package.json`. 
+This requires you to have a local node running, please launch the local node before proceeding. 
 
-## Run all tests 
+### Installation 
 
-`npm run test`
+1) ``` cd e2e_tests ```
+
+2) ```npm install``` 
+
+### E2E tests 
+
+Each test needs to be run individually to avoid one test interfering with another. This is because currently we are not waiting for events and just sleeping. In the future this should be updated. This is done using the ```runInBand``` cli argument of jest which can be seen in this projects `package.json`. 
+
+### Run all tests 
+
+
+```npm run test``` 
+
 
 Be patient, this may take several minutes to complete since we have to wait for these transactions to be mined. 
 
-## Run only one test 
+### Run only one test 
 
 To launch a test simply run `jest prc20` , this will find the `prc20.spec.js` file and run the tests. (You may need to have jest installed globally, alternatively do `./node_modules/.bin/jest prc20`)
 
 Current e2e test and names:
 
-- [prc20](https://github.com/OAXFoundation/parrot/blob/master/js/src/e2e_tests/prc20.spec.js) This has tests for atmoicSwap and prc20 
-- [burn](https://github.com/OAXFoundation/parrot/blob/master/js/src/e2e_tests/burn.spec.js)
-- [multiTransfer](https://github.com/OAXFoundation/parrot/blob/master/js/src/e2e_tests/multiTransfer.spec.js)
-- [feeDelegation](https://github.com/OAXFoundation/parrot/blob/master/js/src/e2e_tests/feeDelegation.spec.js)
+- [prc20](https://github.com/OAXFoundation/parrot/blob/master/js/e2e_tests/src/prc20.spec.js) This has tests for atmoicSwap and prc20 
+- [burn](https://github.com/OAXFoundation/parrot/blob/master/js/e2e_tests/src/burn.spec.js)
+- [multiTransfer](https://github.com/OAXFoundation/parrot/blob/master/js/e2e_tests/src/multiTransfer.spec.js)
+- [feeDelegation](https://github.com/OAXFoundation/parrot/blob/master/js/e2e_tests/src/feeDelegation.spec.js)
 
 
 
 ## Demo Scripts 
 
 The following scripts are simple command line demos of each of the unique parachain features. 
-Please cd into the src/demo directory before running the commands below. You can additionally also have the susbtrate UI set-up in order to follow the demos on chain
+Please cd into the demo/src directory before running the commands below. You can additionally also have the susbtrate UI set-up in order to follow the demos on chain
 
 ### PRC20 Token 
 

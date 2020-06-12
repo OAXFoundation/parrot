@@ -1,10 +1,10 @@
-const { ApiPromise } = require('@polkadot/api');
-const { Keyring } = require('@polkadot/keyring');
+const { ApiPromise, Keyring } = require('@polkadot/api');
 const { BN } = require('bn.js');
-const UTIL = require('@polkadot/util');
+const Util = require('@polkadot/util');
+const ADDITIONAL_TYPES = require('../types/types.json')
 
 class ParrotInterface {
-  constructor(types) {
+  constructor(types = ADDITIONAL_TYPES) {
     this.types = types;
     this.api = undefined;
     this.keyRingPairs = [];
@@ -60,7 +60,7 @@ class ParrotInterface {
 
   // gets the balance of the burn pot
   async getBurnerBalance() {
-    const PADDED_SEED = UTIL.stringToU8a(this.burnerId.padEnd(32, '\0'));
+    const PADDED_SEED = Util.stringToU8a(this.burnerId.padEnd(32, '\0'));
     const burnerBalanceStats = await this.api.query.system.account(PADDED_SEED);
     return burnerBalanceStats.data.free;
   }
@@ -114,7 +114,7 @@ class ParrotInterface {
   async createOffer(address, offerToken, offerAmount, requestedToken, requestedAmount) {
     const senderNonce = await this.getNonce(address);
     const offer = await this.api.createType('Offer', {
-      'offer_token': offerToken, 'offer_amount': offerAmount, 'requested_token' : requestedToken, 'requested_amount': requestedAmount, 'nonce': senderNonce,
+      'offer_token': offerToken, 'offer_amount': offerAmount, 'requested_token': requestedToken, 'requested_amount': requestedAmount, 'nonce': senderNonce,
     });
     return offer;
   }

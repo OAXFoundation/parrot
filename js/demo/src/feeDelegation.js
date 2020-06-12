@@ -1,9 +1,7 @@
 // Fee Delegation Demo (Free Transfer Demo)
 // this is a custom polkadot js api wrapper
-const ParrotInterface = require('../parrot/interface');
-// This imports the json types.json (used to define custom types)
-const ADDITIONAL_TYPES = require('../types/types.json');
-//
+const ParrotInterface = require('parrot-client');
+// lib to get user input 
 const readline = require('readline');
 
 // function to ask question 
@@ -46,7 +44,7 @@ async function balanceDifference(parrot, balAlice, balBob, balCharlie,
 
 async function feeDelegationDemo() {
   // Get a new instance of the interface
-  const parrot = new ParrotInterface(ADDITIONAL_TYPES);
+  const parrot = new ParrotInterface();
   // Init api
   await parrot.initApi();
   // Init keyrings

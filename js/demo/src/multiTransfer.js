@@ -1,9 +1,6 @@
 // Multi Transfer Demo (this is cheaper than normal transfer)
 // this is a custom polkadot js api wrapper
-const ParrotInterface = require('../parrot/interface');
-// This imports the json types.json (used to define custom types)
-const ADDITIONAL_TYPES = require('../types/types.json');
-
+const ParrotInterface = require('parrot-client');
 
 // number of transfers to run
 const RUNS = 5;
@@ -19,10 +16,6 @@ async function getSenderReceiverBalance(parrot, account1, account2) {
   const bal1 = await parrot.api.query.system.account(account1);
   const bal2 = await parrot.api.query.system.account(account2);
   return [bal1.data.free, bal2.data.free];
-  // old version of node template
-  // const bal = await api.query.balances.freeBalance(account1);
-  // const bal2 = await api.query.balances.freeBalance(account2);
-  // return [bal, bal2];
 }
 
 // This function runs a test transfer
@@ -125,7 +118,7 @@ async function multiTransferX(parrot, amount, senderKeyring, receiverAddress, co
 
 async function multiTransferDemo() {
   // Get a new instance of the interface
-  const parrot = new ParrotInterface(ADDITIONAL_TYPES);
+  const parrot = new ParrotInterface();
   // Init api
   await parrot.initApi();
   // Init keyrings

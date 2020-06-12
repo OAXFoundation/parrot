@@ -1,9 +1,8 @@
 // # E2E PRC20 Tests
 // this is a custom polkadot js api wrapper
 const { BN } = require('bn.js');
-const ParrotInterface = require('../parrot/interface');
-// This imports the json types.json (used to define custom types)
-const ADDITIONAL_TYPES = require('../types/types.json');
+const ParrotInterface = require('parrot-client');
+
 
 // TODO: move away from sleep, and wait for tx to be mined
 // sleep time between txs
@@ -23,7 +22,7 @@ describe('prc20', () => {
   let SUPPLY; let
     AMOUNT;
   beforeAll(async () => {
-    parrot = new ParrotInterface(ADDITIONAL_TYPES);
+    parrot = new ParrotInterface();
     await parrot.initApi();
     // Init keyrings
     await parrot.initKeyRings();
