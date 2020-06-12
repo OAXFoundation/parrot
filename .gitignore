@@ -7,4 +7,6 @@
 
 .idea/
 .DS_Store
-js/node_modules/
+js/demo/node_modules/
+js/e2e_tests/node_modules/
+js/parrot-client/node_modules/

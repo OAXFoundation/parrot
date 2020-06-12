@@ -1,8 +1,6 @@
 // PRC20  Demo (create,transfer, approve, transferFrom)
 // this is a custom polkadot js api wrapper
-const ParrotInterface = require('../parrot/interface');
-// This imports the json types.json (used to define custom types)
-const ADDITIONAL_TYPES = require('../types/types.json');
+const ParrotInterface = require('parrot-client');
 
 // sleep time
 const SLEEP = 6000;
@@ -28,7 +26,7 @@ async function prc20Demo() {
   // transfer Amount
   const AMOUNT = 10;
   // Get a new instance of the interface
-  const parrot = new ParrotInterface(ADDITIONAL_TYPES);
+  const parrot = new ParrotInterface();
   // Init api
   await parrot.initApi();
   // Init keyrings

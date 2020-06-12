@@ -1,9 +1,9 @@
 // BURN DEMO
 // this is a custom polkadot js api wrapper
 const { BN } = require('bn.js');
-const ParrotInterface = require('../parrot/interface');
-// This imports the json types.json (used to define custom types)
-const ADDITIONAL_TYPES = require('../types/types.json');
+const ParrotInterface = require('parrot-client');
+// // This imports the json types.json (used to define custom types)
+// const ADDITIONAL_TYPES = require('../types/types.json');
 
 // number of transfers to run
 const RUNS = 50;
@@ -25,7 +25,7 @@ function sleep(ms) {
 
 async function burnDemo() {
   // Get a new instance of the interface
-  const parrot = new ParrotInterface(ADDITIONAL_TYPES);
+  const parrot = new ParrotInterface();
   // Init api
   await parrot.initApi();
   // Init keyrings
