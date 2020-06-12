@@ -47,7 +47,7 @@ Currently we do not have a custom front-end for this chain. You can use poladot-
 The last tested stable release: https://github.com/polkadot-js/apps/commit/63139f15196ae4abb0433e26afc39dd082e48715
 
 
-## End to End Tests + Demos 
+## Client + End to End Tests + Demos 
 
 Instructions to run these tests and demos are in the [REAMDE](https://github.com/OAXFoundation/parrot/blob/master/js/README.md)
 
