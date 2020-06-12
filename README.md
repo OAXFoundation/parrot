@@ -12,7 +12,7 @@ This is OAX's parachain with a few unique features listed below
 
 ## Necessary Custom Types 
 
-[Types.json](https://github.com/OAXFoundation/parrot/blob/master/js/src/types/types.json)
+[Types.json](https://github.com/OAXFoundation/parrot/blob/master/js/parrot-client/src/types/types.json)
 
 ## Pre-reqs
 
