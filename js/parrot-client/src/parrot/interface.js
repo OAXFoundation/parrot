@@ -1,12 +1,16 @@
-const { ApiPromise, Keyring } = require('@polkadot/api');
+const { ApiPromise, Keyring, WsProvider } = require('@polkadot/api');
 const { BN } = require('bn.js');
 const Util = require('@polkadot/util');
+const UtilCrypto = require('@polkadot/util-crypto');
 const ADDITIONAL_TYPES = require('../types/types.json');
 
 class ParrotInterface {
     constructor(types = ADDITIONAL_TYPES) {
         this.types = types;
         this.api = undefined;
+        this.util = Util;
+        this.utilCrypto = UtilCrypto;
+        this.providerUrl = 'ws://localhost:9944';
         this.keyRingPairs = [];
         this.DOLLARS = new BN('1000000000000');
         this.burnerId = 'modlpy/burns';
@@ -14,8 +18,9 @@ class ParrotInterface {
 
     // This initializes api
     async initApi() {
+        const ws = new WsProvider(this.providerUrl);
         // Instantiate the API
-        this.api = await ApiPromise.create({ types: this.types });
+        this.api = await ApiPromise.create({ types: this.types, provider: ws });
         // Retrieve the chain & node information information via rpc calls
         const [chain, nodeName, nodeVersion] = await Promise.all([
             this.api.rpc.system.chain(),
@@ -60,7 +65,7 @@ class ParrotInterface {
 
     // gets the balance of the burn pot
     async getBurnerBalance() {
-        const PADDED_SEED = Util.stringToU8a(this.burnerId.padEnd(32, '\0'));
+        const PADDED_SEED = this.util.stringToU8a(this.burnerId.padEnd(32, '\0'));
         const burnerBalanceStats = await this.api.query.system.account(PADDED_SEED);
         return burnerBalanceStats.data.free;
     }
@@ -116,12 +121,12 @@ class ParrotInterface {
         const senderNonce = await this.getNonce(address);
         const offer = await this.api.createType(
             'Offer', {
-                offer_token: offerToken,
-                offer_amount: offerAmount,
-                requested_token: requestedToken,
-                requested_amount: requestedAmount,
-                nonce: senderNonce,
-            },
+            offer_token: offerToken,
+            offer_amount: offerAmount,
+            requested_token: requestedToken,
+            requested_amount: requestedAmount,
+            nonce: senderNonce,
+        },
         );
         return offer;
     }
