@@ -1,9 +1,39 @@
 // ATOMIC SWAP DEMO for PRC20 TOKENS
 // this is a custom polkadot js api wrapper
 const ParrotInterface = require('parrot-client');
+// lib to get user input
+const readline = require('readline');
+
+// function to ask question
+function askQuestion(query) {
+    const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout,
+    });
+
+    return new Promise((resolve) => rl.question(query, (ans) => {
+        rl.close();
+        resolve(ans);
+    }));
+}
+
 
 // sleep time between actions
 const SLEEP = 6000;
+
+
+function prettyPrintSignedOffer(signedOffer) {
+    console.log(`SignedOffer: \n 
+    Signature: ${signedOffer.signature} \n
+    Signer: ${signedOffer.signer} \n
+    Offer: \n
+        offer_token: ${signedOffer.offer.offer_token} \n
+        offer_amount: ${signedOffer.offer.offer_amount} \n
+        requested_token: ${signedOffer.offer.requested_token} \n
+        requested_amount: ${signedOffer.offer.requested_amount} \n
+        nonce: ${signedOffer.offer.nonce}
+        `);
+}
 
 // this prints token stats for 2 addresses and 2 different tokens,
 // useful in making sure that a swap has successfully occurred (only for visual feedback purposes)
@@ -54,12 +84,23 @@ async function swapDemo() {
     const signature = await parrot.signOffer(BOB, offer);
     // Bob creates a signedOffer
     const signedOffer = await parrot.createSignedOffer(offer, signature, BOB.address);
-    console.log('Bob has created a signedOffer that he shares with Alice');
-    console.log('Alice broadcasts this offer since she is willing to accept the swap terms');
-    // Now Bob sends this offer ofline to Alice
-    // Alice decides to broadcast it since she is willing to take the offer
-    await parrot.swap(ALICE, signedOffer);
-    await sleep(SLEEP);
+    console.log('Bob has created a signedOffer that he can share with Alice');
+    prettyPrintSignedOffer(signedOffer);
+
+    const ans = await askQuestion(`\n \nDo you want to broadcast this manually? Please type Y or N:    `);
+    if (ans.toLowerCase() === 'n') {
+        console.log('Alice broadcasts this offer since she is willing to accept the swap terms');
+        // Now Bob sends this offer ofline to Alice
+        // Alice decides to broadcast it since she is willing to take the offer
+        await parrot.swap(ALICE, signedOffer);
+        await sleep(SLEEP);
+    } else if (ans.toLowerCase() === 'y') {
+        const resp = await askQuestion(`\n \nPlease type anything once you have broadcasted the transaction and it has been mined!`)
+    }
+
+
+
+
     // Print balance stats
     await printAliceBobTokenStats(parrot, ALICE.address, BOB.address, tokenIdAlice, tokenIdBob);
 }
