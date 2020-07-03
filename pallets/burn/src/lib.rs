@@ -19,26 +19,25 @@ use sp_std::if_std;
 const MODULE_ID: ModuleId = ModuleId(*b"py/burns");
 
 /// Types necessary to enable using currency
-type BalanceOf<T> = <<T as Trait>::Currency as Currency<<T as 
-    frame_system::Trait>::AccountId>>::Balance;
+type BalanceOf<T> =
+    <<T as Trait>::Currency as Currency<<T as frame_system::Trait>::AccountId>>::Balance;
 /// Types necessary to enable using currency
-type NegativeImbalanceOf<T> = <<T as Trait>::Currency as Currency<<T as 
-    frame_system::Trait>::AccountId>>::NegativeImbalance;
+type NegativeImbalanceOf<T> =
+    <<T as Trait>::Currency as Currency<<T as frame_system::Trait>::AccountId>>::NegativeImbalance;
 
 /// The module's configuration trait.
 pub trait Trait: frame_system::Trait + pallet_balances::Trait {
     /// The overarching event type.
     type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
     /// Currency type to use blockchains native currency
-    type Currency: Currency<Self::AccountId> + 
-        ReservableCurrency<Self::AccountId>;
+    type Currency: Currency<Self::AccountId> + ReservableCurrency<Self::AccountId>;
     /// Period between successive burns. This is set in bin/runtime/lib.rs
     type BurnPeriod: Get<Self::BlockNumber>;
 }
 
 // This module's storage items.
 decl_storage! {
-    // storage trait for burner 
+    // storage trait for burner
     trait Store for Module<T: Trait> as Burner {
         Key get(fn key) config(): T::AccountId;
     }
@@ -89,13 +88,13 @@ impl<T: Trait> Module<T> {
     // Add public immutables and private mutables.
     /// The account ID of the Burner pot.
     ///
-    /// HINT! This actually does computation. If you need to keep using it, 
+    /// HINT! This actually does computation. If you need to keep using it,
     /// then make sure you cache the value and only call this once.
     pub fn account_id() -> T::AccountId {
         MODULE_ID.into_account()
     }
 
-    /// Return the amount of money in the burn pot 
+    /// Return the amount of money in the burn pot
     /// (Substrates existential deposit
     /// so will only show available balance, not free balance). The existential
     /// deposit is not part of the pot so burn account never gets deleted.
@@ -115,7 +114,7 @@ impl<T: Trait> Module<T> {
     }
 }
 
-/// This is to accept incoming deposits for 
+/// This is to accept incoming deposits for
 /// fee payment, and broadcast a Deposit event
 impl<T: Trait> OnUnbalanced<NegativeImbalanceOf<T>> for Module<T> {
     fn on_nonzero_unbalanced(amount: NegativeImbalanceOf<T>) {
@@ -130,8 +129,7 @@ impl<T: Trait> OnUnbalanced<NegativeImbalanceOf<T>> for Module<T> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use frame_support::{impl_outer_event, impl_outer_origin, 
-        parameter_types, weights::Weight};
+    use frame_support::{impl_outer_event, impl_outer_origin, parameter_types, weights::Weight};
     use sp_core::H256;
     use sp_runtime::{
         testing::Header,
@@ -166,6 +164,7 @@ mod tests {
         pub const AvailableBlockRatio: Perbill = Perbill::one();
     }
     impl frame_system::Trait for Test {
+        type BaseCallFilter = ();
         type Origin = Origin;
         type Index = u64;
         type BlockNumber = u64;
@@ -183,7 +182,7 @@ mod tests {
         type ExtrinsicBaseWeight = ();
         type AvailableBlockRatio = AvailableBlockRatio;
         type MaximumBlockLength = MaximumBlockLength;
-        type MaximumExtrinsicWeight = MaximumBlockWeight; 
+        type MaximumExtrinsicWeight = MaximumBlockWeight;
         type Version = ();
         type ModuleToIndex = ();
         type AccountData = pallet_balances::AccountData<u64>;
@@ -241,7 +240,7 @@ mod tests {
         new_test_ext().execute_with(|| {
             // set burner balance to 101
             Balances::make_free_balance_be(&Burner::account_id(), 101);
-            // make sure pot returns 100  
+            // make sure pot returns 100
             // since ExistentialDeposit = 1 . 101-1 = 100
             assert_eq!(Burner::pot(), 100);
         });

@@ -1,8 +1,8 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 //! # Fee Delegation Module
 //! Simple module that allows a user to pay for another users transfer
-//! A user first signs a message offline and sends it to the fee delegator. 
-//! If the fee delegator wants to broadcast this message he 
+//! A user first signs a message offline and sends it to the fee delegator.
+//! If the fee delegator wants to broadcast this message he
 //! may choose to do so, he will be charged a fee for the users transfer
 //!  instead of the user This basically achieves a free transfer for the user
 use codec::{Decode, Encode};
@@ -17,8 +17,8 @@ use sp_runtime::traits::{IdentifyAccount, Member, Verify};
 use sp_std::{convert::TryInto, if_std};
 
 /// Types necessary to enable using currency
-type BalanceOf<T> = <<T as Trait>::Currency as Currency<<T as 
-    frame_system::Trait>::AccountId>>::Balance;
+type BalanceOf<T> =
+    <<T as Trait>::Currency as Currency<<T as frame_system::Trait>::AccountId>>::Balance;
 
 /// The module's configuration trait.
 pub trait Trait: frame_system::Trait + pallet_balances::Trait {
@@ -70,31 +70,31 @@ decl_module! {
 
         /// Delegated transfer
         #[weight = T::DbWeight::get().reads_writes(1, 1) + 70_000_000]
-        fn delegated_transfer(origin, 
+        fn delegated_transfer(origin,
             signed_dtd:  SignedDelegatedTransferDetails<T::Signature,
-                T::AccountId, 
+                T::AccountId,
                 BalanceOf<T>>
         )-> DispatchResult	{
             // Ensure signed by fee delegator
             let delegator = ensure_signed(origin)?;
             // Ensure signed by user who wants to send funds, or return error
-            ensure!(Self::verify_dtd_signature(signed_dtd.clone()).is_ok(), 
+            ensure!(Self::verify_dtd_signature(signed_dtd.clone()).is_ok(),
                 <Error<T>>::InvalidSignature);
             // get the sender's nonce
             let sender_nonce: u128 = TryInto::<u128>::try_into(
                 <system::Module<T>>::account_nonce(&signed_dtd.signer))
                 .map_err(|_| "error")?;
-            // verify his nonce is correct, 
+            // verify his nonce is correct,
             // or return error (
             // this allows replay protection of the offline signed messaged)
-            ensure!(sender_nonce == signed_dtd.transfer.nonce, 
+            ensure!(sender_nonce == signed_dtd.transfer.nonce,
                 <Error<T>>::IncorrectNonce);
             // make the transfer
-            let transfer_result = T::Currency::transfer(&signed_dtd.signer, 
-                &signed_dtd.transfer.to, 
-                signed_dtd.transfer.amount, 
+            let transfer_result = T::Currency::transfer(&signed_dtd.signer,
+                &signed_dtd.transfer.to,
+                signed_dtd.transfer.amount,
                 ExistenceRequirement::KeepAlive);
-            // get the status of the transfer, if success 
+            // get the status of the transfer, if success
             // increment sender nonce + broadcast event , return the error
             match transfer_result {
                 Ok(()) => {
@@ -105,9 +105,9 @@ decl_module! {
                         &signed_dtd.signer);
                     // broadcast an event
                     Self::deposit_event(RawEvent::DelegatedTransfer(
-                        delegator, 
-                        signed_dtd.signer, 
-                        signed_dtd.transfer.to, 
+                        delegator,
+                        signed_dtd.signer,
+                        signed_dtd.transfer.to,
                         signed_dtd.transfer.amount,
                     ));
                     Ok(())
@@ -125,20 +125,17 @@ decl_event!(
         AccountId = <T as frame_system::Trait>::AccountId,
         Balance = BalanceOf<T>,
     {
-        /// DelegatedTransfer Event with details below 
+        /// DelegatedTransfer Event with details below
         /// DelegatedTransfer(DelegatorAddr, SenderAddr, ReceiverAddr, Amount)
         DelegatedTransfer(AccountId, AccountId, AccountId, Balance),
     }
 );
 
-/// custom functions for this module 
+/// custom functions for this module
 impl<T: Trait> Module<T> {
-    
-    /// function to verify a signature given a signed Delegated Transfer 
+    /// function to verify a signature given a signed Delegated Transfer
     fn verify_dtd_signature(
-        signed_dtd: SignedDelegatedTransferDetails<T::Signature, 
-            T::AccountId, 
-            BalanceOf<T>>,
+        signed_dtd: SignedDelegatedTransferDetails<T::Signature, T::AccountId, BalanceOf<T>>,
     ) -> Result<(), &'static str> {
         match signed_dtd
             .signature
@@ -155,8 +152,8 @@ impl<T: Trait> Module<T> {
 mod tests {
     use super::*;
     use frame_support::{
-        assert_noop, assert_ok, impl_outer_origin, impl_outer_event, 
-        parameter_types, weights::Weight,
+        assert_noop, assert_ok, impl_outer_event, impl_outer_origin, parameter_types,
+        weights::Weight,
     };
     use sp_core::sr25519;
     use sp_core::H256;
@@ -170,7 +167,7 @@ mod tests {
     mod delegation {
         pub use super::super::*;
     }
-    
+
     impl_outer_origin! {
         pub enum Origin for Test {}
     }
@@ -187,7 +184,7 @@ mod tests {
     // An identifier for an account on this system.
     pub type AccountId = <Signature as Verify>::Signer;
 
-    // implement frame_system trait for test 
+    // implement frame_system trait for test
     #[derive(Clone, Eq, PartialEq)]
     pub struct Test;
 
@@ -199,6 +196,7 @@ mod tests {
     }
     impl frame_system::Trait for Test {
         type Origin = Origin;
+        type BaseCallFilter = ();
         type Index = u64;
         type BlockNumber = u64;
         type Call = ();
@@ -215,7 +213,7 @@ mod tests {
         type ExtrinsicBaseWeight = ();
         type AvailableBlockRatio = AvailableBlockRatio;
         type MaximumBlockLength = MaximumBlockLength;
-        type MaximumExtrinsicWeight = MaximumBlockWeight; 
+        type MaximumExtrinsicWeight = MaximumBlockWeight;
         type Version = ();
         type ModuleToIndex = ();
         type AccountData = pallet_balances::AccountData<u64>;
@@ -319,7 +317,7 @@ mod tests {
     #[test]
     fn delegated_transfer_fails_if_wrong_nonce() {
         ExtBuilder::build().execute_with(|| {
-            // Alice will act as the fee delegator interacting with the 
+            // Alice will act as the fee delegator interacting with the
             // blockchain
             // get account id for alice and bob and eve
             let alice = AccountId::from(AccountKeyring::Alice);
@@ -348,9 +346,7 @@ mod tests {
             // Fee delegator Alice broadcasts this transaction for Eve
             // Do a multi_transfer, assert it errors saying incorrect nonce
             assert_noop!(
-                DelegatorModule::delegated_transfer(
-                    Origin::signed(alice.clone()), 
-                    signed_dtd),
+                DelegatorModule::delegated_transfer(Origin::signed(alice.clone()), signed_dtd),
                 Error::<Test>::IncorrectNonce
             );
             //Bob balance is unchanged
@@ -364,7 +360,7 @@ mod tests {
     #[test]
     fn delegated_transfer_fails_if_wrong_signature() {
         ExtBuilder::build().execute_with(|| {
-            // Alice will act as the fee delegator interacting with the 
+            // Alice will act as the fee delegator interacting with the
             // blockchain
             // get account id for alice and bob and eve
             let alice = AccountId::from(AccountKeyring::Alice);
@@ -384,8 +380,8 @@ mod tests {
                 to: bob.clone(),
                 nonce: 5,
             };
-            // Bob signs this dtd, for an invalid signature 
-            // (Eve should be the actual signer, but this 
+            // Bob signs this dtd, for an invalid signature
+            // (Eve should be the actual signer, but this
             // is a way to create a invalid sig)
             let signed_dtd = SignedDelegatedTransferDetails {
                 transfer: dtd.clone(),
@@ -395,9 +391,7 @@ mod tests {
             // Fee delegator Alice broadcasts this transaction for Eve
             // Do a multi_transfer, assert it errors saying wrong signature
             assert_noop!(
-                DelegatorModule::delegated_transfer(
-                    Origin::signed(alice.clone()), 
-                    signed_dtd),
+                DelegatorModule::delegated_transfer(Origin::signed(alice.clone()), signed_dtd),
                 Error::<Test>::InvalidSignature
             );
             //Bob balance is unchanged
