@@ -1,6 +1,7 @@
 // Multi Transfer Demo (this is cheaper than normal transfer)
 // this is a custom polkadot js api wrapper
 const ParrotInterface = require('parrot-client');
+const { BN } = require('bn.js');
 
 // number of transfers to run
 const RUNS = 5;
@@ -30,11 +31,11 @@ async function transferXTimes(parrot, amount, senderKeyring, receiverAddress, co
     );
     console.log(
         `Initial Balances ... \nSender: ${parrot.formatToCurrency(senderBalance)} \nReceiver: ${
-            parrot.formatToCurrency(receiverBalance)}`,
+        parrot.formatToCurrency(receiverBalance)}`,
     );
 
     for (let i = 0; i < count; i++) {
-    // Try to transfer
+        // Try to transfer
         console.log(`Attempting transfer of value ${parrot.formatToCurrency(amount)}!`);
         const transfer = parrot.api.tx.balances.transfer(receiverAddress, amount);
         // Sign and send the transaction using senderKeyring
@@ -54,7 +55,7 @@ async function transferXTimes(parrot, amount, senderKeyring, receiverAddress, co
     );
     console.log(
         `Final Balances ... \nSender: ${parrot.formatToCurrency(senderBalanceNew)} \nReceiver: ${
-            parrot.formatToCurrency(receiverBalanceNew)}`,
+        parrot.formatToCurrency(receiverBalanceNew)}`,
     );
     const feesPaid = senderBalance - senderBalanceNew - count * amount;
 
@@ -74,7 +75,7 @@ async function multiTransferX(parrot, amount, senderKeyring, receiverAddress, co
     );
     console.log(
         `Initial Balances ... \nSender: ${parrot.formatToCurrency(senderBalance)} \nReceiver: ${
-            parrot.formatToCurrency(receiverBalance)}`,
+        parrot.formatToCurrency(receiverBalance)}`,
     );
     // Try to transfer
     console.log(
@@ -104,7 +105,7 @@ async function multiTransferX(parrot, amount, senderKeyring, receiverAddress, co
     );
     console.log(
         `Final Balances ... \nSender: ${parrot.formatToCurrency(senderBalanceNew)} \nReceiver: ${
-            parrot.formatToCurrency(receiverBalanceNew)}`,
+        parrot.formatToCurrency(receiverBalanceNew)}`,
     );
 
     const feesPaid = senderBalance - senderBalanceNew - count * amount;
@@ -127,7 +128,7 @@ async function multiTransferDemo() {
     [ALICE, BOB, CHARLIE, DAVE] = parrot.keyRingPairs;
 
     // amount to transfer in each transfer
-    const AMOUNT = 1000 * parrot.DOLLARS;
+    const AMOUNT = parrot.DOLLARS.mul(new BN('99'));
 
     // This script will attempt to do a normal transfer X times, followed by a multiTransfer, then compare the fees
     console.log(`This script will try to do a transfer ${RUNS} times. 

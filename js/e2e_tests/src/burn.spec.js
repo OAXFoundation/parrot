@@ -23,7 +23,8 @@ describe('burn', () => {
         [ALICE, BOB, CHARLIE, DAVE] = parrot.keyRingPairs;
     });
     test('burn pot recieves funds from fees', async () => {
-        const AMOUNT = 100;
+        // amount to transfer in each transfer
+        const AMOUNT = parrot.DOLLARS.mul(new BN('99'));
         // get burn pot balance
         const burnStartBal = await parrot.getBurnerBalance();
         // make a bunch of transfer s

@@ -35,7 +35,7 @@ async function burnDemo() {
     [ALICE, BOB, CHARLIE, DAVE] = parrot.keyRingPairs;
 
     // amount to transfer in each transfer
-    const AMOUNT = parrot.DOLLARS.mul(new BN('1000'));
+    const AMOUNT = parrot.DOLLARS.mul(new BN('99'));
 
     // Run a bunch of blokchain operations so the burn account can recieve the fees
     console.log(`		This script will run a bunch of transfers from Alice to Dave ${RUNS} times,

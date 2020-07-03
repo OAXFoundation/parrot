@@ -12,7 +12,7 @@ class ParrotInterface {
         this.utilCrypto = UtilCrypto;
         this.providerUrl = 'ws://localhost:9944';
         this.keyRingPairs = [];
-        this.DOLLARS = new BN('1000000000000');
+        this.DOLLARS = new BN('1000000000000000');
         this.burnerId = 'modlpy/burns';
     }
 

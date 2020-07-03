@@ -1,6 +1,7 @@
 // Fee Delegation Demo (Free Transfer Demo)
 // this is a custom polkadot js api wrapper
 const ParrotInterface = require('parrot-client');
+const { BN } = require('bn.js');
 // lib to get user input
 const readline = require('readline');
 
@@ -54,7 +55,7 @@ async function feeDelegationDemo() {
     [ALICE, BOB, CHARLIE, DAVE] = parrot.keyRingPairs;
 
     // amount to transfer in each transfer
-    const AMOUNT = 1000 * parrot.DOLLARS;
+    const AMOUNT = parrot.DOLLARS.mul(new BN('99'));
 
     let balAlice; let balBob; let
         balCharlie;

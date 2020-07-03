@@ -23,7 +23,9 @@ describe('mutliTransfer', () => {
         [ALICE, BOB, CHARLIE, DAVE] = parrot.keyRingPairs;
     });
     test('multiTransfer Works', async () => {
-        const AMOUNT = 100 * parrot.DOLLARS;
+        // const AMOUNT = 100 * parrot.DOLLARS;
+        // amount to transfer in each transfer
+        const AMOUNT = parrot.DOLLARS.mul(new BN('99'));
 
         const bobBalanceStart = await parrot.getFreeBalance(BOB.address);
         const charlieBalanceStart = await parrot.getFreeBalance(CHARLIE.address);
