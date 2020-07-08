@@ -1,22 +1,10 @@
-// Fee Delegation Demo (Free Transfer Demo)
-// this is a custom polkadot js api wrapper
-const ParrotInterface = require('parrot-client');
+// ### Fee Delegation Demo (Free Transfer Demo) ### 
+
 const { BN } = require('bn.js');
-// lib to get user input
-const readline = require('readline');
-
-// function to ask question
-function askQuestion(query) {
-    const rl = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout,
-    });
-
-    return new Promise((resolve) => rl.question(query, (ans) => {
-        rl.close();
-        resolve(ans);
-    }));
-}
+// this is the client to interact with oax blockchain 
+const ParrotInterface = require('parrot-client');
+// helper function to get user input 
+const askQuestion = require('./util/util.js')
 
 // sleep time between actions
 const SLEEP = 6000;
@@ -47,9 +35,9 @@ async function feeDelegationDemo() {
     const parrot = new ParrotInterface();
     // Init api
     await parrot.initApi();
-    // Init keyrings
+    // Init keyRings
     await parrot.initKeyRings();
-    // get keyrings
+    // get keyRings
     let ALICE; let BOB; let CHARLIE; let
         DAVE;
     [ALICE, BOB, CHARLIE, DAVE] = parrot.keyRingPairs;
@@ -76,25 +64,24 @@ async function feeDelegationDemo() {
     const ans = await askQuestion('\n \nDo you want to broadcast this manually? Please type Y or N:   ');
     if (ans.toLowerCase() === 'n') {
         console.log('Alice acts as the fee delegator and broadcasts this signedDelegatedTransferDetails since she is willing to fee delegate');
-        // Now Bob sends this signedDtd ofline to Alice
+        // Now Bob sends this signedDtd offline to Alice
         // Alice decides to broadcast it since she is willing to do the trade for Bob
         const transferTx = await parrot.api.tx.delegation.delegatedTransfer(signedDtd);
         const hash = await transferTx.signAndSend(ALICE);
         console.log('Delegated transfer sent by Alice with hash', hash.toHex());
         await sleep(SLEEP);
-
-        let balAliceNew; let balBobNew; let
-            balCharlieNew;
-        [balAliceNew, balBobNew, balCharlieNew] = await getAliceBobBalStats(parrot, ALICE.address, BOB.address, CHARLIE.address);
-        await balanceDifference(parrot, balAlice, balBob, balCharlie, balAliceNew, balBobNew, balCharlieNew);
-    } else if (ans.toLowerCase() === 'y') {
-        const resp = await askQuestion('\n \nPlease type anything, once you have broadcasted the transaction and it has been mined!:   ');
-
-        let balAliceNew; let balBobNew; let
-            balCharlieNew;
-        [balAliceNew, balBobNew, balCharlieNew] = await getAliceBobBalStats(parrot, ALICE.address, BOB.address, CHARLIE.address);
-        await balanceDifference(parrot, balAlice, balBob, balCharlie, balAliceNew, balBobNew, balCharlieNew);
     }
+    // if user says Y, wait till user wakes program again 
+    else if (ans.toLowerCase() === 'y') {
+        const resp = await askQuestion('\n \nPlease type anything, once you have broadcasted the transaction and it has been mined!:   ');
+    }
+
+    // Now get the new balances  
+    let balAliceNew; let balBobNew; let
+        balCharlieNew;
+    [balAliceNew, balBobNew, balCharlieNew] = await getAliceBobBalStats(parrot, ALICE.address, BOB.address, CHARLIE.address);
+    // print the balance difference 
+    await balanceDifference(parrot, balAlice, balBob, balCharlie, balAliceNew, balBobNew, balCharlieNew);
 }
 
 async function main() {

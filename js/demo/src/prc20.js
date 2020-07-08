@@ -1,11 +1,12 @@
-// PRC20  Demo (create,transfer, approve, transferFrom)
-// this is a custom polkadot js api wrapper
+// ### RC20  Demo (create,transfer, approve, transferFrom) ### 
+
+// this is the client to interact with oax blockchain 
 const ParrotInterface = require('parrot-client');
 
 // sleep time
 const SLEEP = 6000;
 
-// this prints token stats for 2 addresses and 2 different tokens, useful in making sure that a swap has sucessfully occured (only for visual feedback purposes)
+// this prints token stats for 2 addresses and 2 different tokens, useful in making sure that a swap has successfully occurred (only for visual feedback purposes)
 async function printAliceBobTokenStats(parrot, aliceAddress, bobAddress, aliceTokenId) {
     // Alice Bal
     const bal1 = await parrot.getTokenBalance(aliceAddress, aliceTokenId);
@@ -22,31 +23,31 @@ function sleep(ms) {
 // demo for an atomic swap of tokens (this demo creates two new tokens)
 async function prc20Demo() {
     // total supply of Alice Token
-    const TOTALSUPPLY = 1000;
+    const SUPPLY = 1000;
     // transfer Amount
     const AMOUNT = 10;
     // Get a new instance of the interface
     const parrot = new ParrotInterface();
     // Init api
     await parrot.initApi();
-    // Init keyrings
+    // Init keyRings
     await parrot.initKeyRings();
-    // get keyrings
+    // get keyRings
     let ALICE; let BOB; let CHARLIE; let
         DAVE;
     [ALICE, BOB, CHARLIE, DAVE] = parrot.keyRingPairs;
 
-    console.log('This is a simple demo of creating, transfering, approving and using transfer_from on prc20 tokens!');
+    console.log('This is a simple demo of creating, transferring, approving and using transfer_from on prc20 tokens!');
 
-    console.log(`Alice is creating a new PRC20 token with supply ${TOTALSUPPLY}!`);
+    console.log(`Alice is creating a new PRC20 token with supply ${SUPPLY}!`);
     // Alice creates a token
-    const tokenIdAlice = await parrot.createToken(ALICE, TOTALSUPPLY);
+    const tokenIdAlice = await parrot.createToken(ALICE, SUPPLY);
     await sleep(SLEEP);
     console.log(`Alice has created Alice Token with tokenId: ${tokenIdAlice}`);
     // print Alice and Bob token stats
     await printAliceBobTokenStats(parrot, ALICE.address, BOB.address, tokenIdAlice);
     console.log(`Now alice will transfer ${AMOUNT} tokens to BOB`);
-    // Now Alice will transfer transferAmount tokens to Bobn
+    // Now Alice will transfer transferAmount tokens to Bob 
     await parrot.transferToken(ALICE, BOB.address, tokenIdAlice, AMOUNT);
     await sleep(SLEEP);
     // print Alice and Bob token stats
