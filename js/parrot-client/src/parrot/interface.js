@@ -57,7 +57,7 @@ class ParrotInterface {
         return stats.nonce;
     }
 
-    // returns total issuance of the system after querrying
+    // returns total issuance of the system after querying
     async getTotalIssuance() {
         const totalIssuance = await this.api.query.balances.totalIssuance();
         return totalIssuance;
@@ -71,7 +71,7 @@ class ParrotInterface {
     }
 
     // Creates a PRC20 Token, returns tokenID
-    // TODO: should be improved to use event to see if token is sucesfully created
+    // TODO: should be improved to use event to see if token is successfully created
     async createToken(keyringPair, totalSupply) {
         const tokenCount = await this.api.query.prc20.tokenCount();
         // console.log(`Current token count ${tokenCount}`);
@@ -97,6 +97,7 @@ class ParrotInterface {
         console.log(`Approve sent with hash ${hash}`);
     }
 
+    // return the allowance of an account, for a given token and address 
     async getAllowanceOf(wallet, who, tokenId) {
         const bal = await this.api.query.prc20.allowance([tokenId, wallet, who]);
         return bal;
@@ -158,12 +159,14 @@ class ParrotInterface {
         return dtd;
     }
 
+    // signs a Delegated Transfer 
     async signDtd(keyRingPair, dtd) {
         const encodedDtd = dtd.toU8a();
         const signature = keyRingPair.sign(encodedDtd, { withType: true });
         return signature;
     }
 
+    // creates a signedDtd given delegated transfer details, and signature 
     async createSignedDtd(dtd, signature, signer) {
         const signedDtd = await this.api.createType('SignedDelegatedTransferDetails', { transfer: dtd, signature, signer });
         return signedDtd;
