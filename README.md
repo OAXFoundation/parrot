@@ -1,11 +1,11 @@
 # OAX Parrot 
 
-This is OAX's parachain with a few unique features listed below
+OAX Parachain 
 
 ## Features 
 
 - [x] ERC20 Standard 
-- [x] Atomic Swap 
+- [x] Atomic Swap (Single tx swap for ERC20 tokens) 
 - [x] Multi-Transfer 
 - [x] Automatic Fee Burn 
 - [x] Fee Delegation
@@ -42,9 +42,9 @@ Initialize your Wasm Build environment:
 
 ## FrontEnd
 
-Currently we do not have a custom front-end for this chain. You can use poladot-js/apps as a front end for the chain without any issues. 
+Currently we do not have a custom front-end for this chain. You can use polkadot-js/apps as a front end for the chain without any issues. 
 
-The last tested stable release: https://github.com/polkadot-js/apps/commit/63139f15196ae4abb0433e26afc39dd082e48715
+The last tested stable release: https://github.com/polkadot-js/apps/tree/v0.48.1
 
 
 ## Client + End to End Tests + Demos 
@@ -53,7 +53,7 @@ Instructions to run these tests and demos are in the [REAMDE](https://github.com
 
 
 
-## OAX Custom Parachain Feature Implementations 
+## Feature Implementations 
 
 [ERC20 Standard](https://github.com/OAXFoundation/parrot/blob/master/pallets/prc20/src/lib.rs)
 
@@ -135,7 +135,7 @@ Then run the following command to start a single node development chain.
 This command will firstly compile your code, and then start a local development network. You can also replace the default command (`cargo build --release && ./target/release/parrot --dev --ws-external`) by appending your own. A few useful ones are as follow.
 
 ```bash
-# Run Substrate node without re-compiling
+# Run Substrate node without re-compiling 
 ./scripts/docker_run.sh ./target/release/parrot --dev --ws-external
 
 # Purge the local dev chain
@@ -144,29 +144,3 @@ This command will firstly compile your code, and then start a local development 
 # Check whether the code is compilable
 ./scripts/docker_run.sh cargo check
 ```
-
-## Advanced: Generate Your Own Substrate Node Template
-
-A substrate node template is always based on a certain version of Substrate. You can inspect it by
-opening [Cargo.toml](Cargo.toml) and see the template referred to a specific Substrate commit(
-`rev` field), branch, or version.
-
-You can generate your own Substrate parrot based on a particular Substrate
-version/commit by running following commands:
-
-```bash
-# git clone from the main Substrate repo
-git clone https://github.com/paritytech/substrate.git
-cd substrate
-
-# Switch to a particular branch or commit of the Substrate repo your parrot based on
-git checkout <branch/tag/sha1>
-
-# Run the helper script to generate a node template.
-# This script compiles Substrate and takes a while to complete. It takes a relative file path
-#   from the current dir. to output the compressed node template.
-.maintain/parrot-release.sh ../parrot.tar.gz
-```
-
-Noted though you will likely get faster and more thorough support if you stick with the releases
-provided in this repository.
