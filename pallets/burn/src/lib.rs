@@ -60,10 +60,9 @@ decl_event!(
     where
         Balance = BalanceOf<T>,
     {
-        /// Balance Burn Event (broadcasted when funds are burnt)
+        /// Burn (amount) , burning funds in burner pot
         Burn(Balance),
-        /// Balance Deposit Event (broadcasted when some funds have been
-        /// deposited due to fees/tips)
+        /// Deposit (amount) , depositing funds in burner pot due to fees/tips
         Deposit(Balance),
     }
 );

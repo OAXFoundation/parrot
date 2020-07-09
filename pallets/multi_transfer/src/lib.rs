@@ -53,7 +53,7 @@ decl_event!(
         AccountId = <T as frame_system::Trait>::AccountId,
         Balance = BalanceOf<T>,
     {
-        /// Event that is broadcasted when a multiTransfer event is run
+        /// Native token MultiTransfer (Vec<(DestinationAddress, Amount, Successful ))
         MultiTransfer(Vec<(AccountId, Balance, bool)>),
     }
 );

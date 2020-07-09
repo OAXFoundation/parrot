@@ -276,14 +276,13 @@ decl_event!(
         TokenId = <T as Trait>::TokenId,
         TokenBalance = <T as Trait>::TokenBalance,
     {
-        /// event for a new token creation
+        /// New token creation (tokenId, Creator AccountId, Amount)
         NewToken(TokenId, AccountId, TokenBalance),
-        /// event for a simple token transfer
+        /// Simple token transfer (tokenId, Sender AccountId, Recipient AccountId, Amount)
         Transfer(TokenId, AccountId, AccountId, TokenBalance),
-        /// event for approval
+        /// Approval (tokenId, Sender AccountId, Spender AccountId, Amount)
         Approval(TokenId, AccountId, AccountId, TokenBalance),
-        /// event for Swap
-        /// Swap(TokenId, Bal, TokenId, Bal, maker, taker)
+        /// Token Swap (offerTokenId, offerAmount, requestedTokenId, requestedAmount, maker, taker)
         Swap(
             TokenId,
             TokenBalance,
@@ -292,7 +291,7 @@ decl_event!(
             AccountId,
             AccountId,
         ),
-        /// Event for MultiTransfer
+        /// MultiTransfer (Vec<(Destination, Amount, Successful )>)
         MultiTransfer(Vec<(AccountId, TokenBalance, bool)>),
     }
 );

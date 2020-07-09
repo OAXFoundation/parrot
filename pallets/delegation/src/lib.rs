@@ -125,8 +125,7 @@ decl_event!(
         AccountId = <T as frame_system::Trait>::AccountId,
         Balance = BalanceOf<T>,
     {
-        /// DelegatedTransfer Event with details below
-        /// DelegatedTransfer(DelegatorAddr, SenderAddr, ReceiverAddr, Amount)
+        /// DelegatedTransfer (DelegatorAddr, SenderAddr, ReceiverAddr, Amount)
         DelegatedTransfer(AccountId, AccountId, AccountId, Balance),
     }
 );
