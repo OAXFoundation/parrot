@@ -53,8 +53,9 @@ decl_event!(
         AccountId = <T as frame_system::Trait>::AccountId,
         Balance = BalanceOf<T>,
     {
-        /// Native token MultiTransfer (Vec<(DestinationAddress, Amount, Successful ))
-        MultiTransfer(Vec<(AccountId, Balance, bool)>),
+        /// Native token MultiTransfer
+        /// (SenderAddr, Vec<(DestinationAddress, Amount, Successful ))
+        MultiTransfer(AccountId, Vec<(AccountId, Balance, bool)>),
     }
 );
 
@@ -101,7 +102,7 @@ decl_module! {
             }
             if_std!{println!("{:#?}", status_vector)}
             // trigger a multi-transfer event.
-            Self::deposit_event(RawEvent::MultiTransfer(status_vector));
+            Self::deposit_event(RawEvent::MultiTransfer(sender, status_vector));
             Ok(())
         }
     }
