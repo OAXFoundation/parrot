@@ -263,7 +263,7 @@ decl_module! {
                     status));
             }
             // broadcast multi transfer event
-            Self::deposit_event(RawEvent::MultiTransfer(status_vector));
+            Self::deposit_event(RawEvent::MultiTransfer(sender, status_vector));
             Ok(())
         }
     }
@@ -292,7 +292,7 @@ decl_event!(
             AccountId,
         ),
         /// MultiTransfer (Vec<(Destination, Amount, Successful )>)
-        MultiTransfer(Vec<(AccountId, TokenBalance, bool)>),
+        MultiTransfer(AccountId, Vec<(AccountId, TokenBalance, bool)>),
     }
 );
 
