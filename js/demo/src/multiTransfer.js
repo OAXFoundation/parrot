@@ -1,5 +1,7 @@
-// Multi Transfer Demo (this is cheaper than normal transfer)
-// this is a custom polkadot js api wrapper
+// ### Multi Transfer Demo (this is cheaper than normal transfer) ### 
+
+const { BN } = require('bn.js');
+// this is the client to interact with oax blockchain 
 const ParrotInterface = require('parrot-client');
 
 // number of transfers to run
@@ -10,6 +12,8 @@ const SLEEP = 6000;
 function sleep(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
+
+// function to get balance of two accounts 
 async function getSenderReceiverBalance(parrot, account1, account2) {
     // new version of node template
     const bal1 = await parrot.api.query.system.account(account1);
@@ -17,7 +21,7 @@ async function getSenderReceiverBalance(parrot, account1, account2) {
     return [bal1.data.free, bal2.data.free];
 }
 
-// This function runs a test transfer
+// This function runs a test transfer, `count` times , and returns the fees paid 
 async function transferXTimes(parrot, amount, senderKeyring, receiverAddress, count) {
     console.log(`Running normal Transfer ${count} times!`);
     // get sender and receiver balance and log
@@ -30,11 +34,11 @@ async function transferXTimes(parrot, amount, senderKeyring, receiverAddress, co
     );
     console.log(
         `Initial Balances ... \nSender: ${parrot.formatToCurrency(senderBalance)} \nReceiver: ${
-            parrot.formatToCurrency(receiverBalance)}`,
+        parrot.formatToCurrency(receiverBalance)}`,
     );
 
     for (let i = 0; i < count; i++) {
-    // Try to transfer
+        // Try to transfer
         console.log(`Attempting transfer of value ${parrot.formatToCurrency(amount)}!`);
         const transfer = parrot.api.tx.balances.transfer(receiverAddress, amount);
         // Sign and send the transaction using senderKeyring
@@ -54,7 +58,7 @@ async function transferXTimes(parrot, amount, senderKeyring, receiverAddress, co
     );
     console.log(
         `Final Balances ... \nSender: ${parrot.formatToCurrency(senderBalanceNew)} \nReceiver: ${
-            parrot.formatToCurrency(receiverBalanceNew)}`,
+        parrot.formatToCurrency(receiverBalanceNew)}`,
     );
     const feesPaid = senderBalance - senderBalanceNew - count * amount;
 
@@ -63,6 +67,7 @@ async function transferXTimes(parrot, amount, senderKeyring, receiverAddress, co
     return feesPaid;
 }
 
+// this functions runs a single multiTransfer of `count` transfers , and returns the fees paid 
 async function multiTransferX(parrot, amount, senderKeyring, receiverAddress, count) {
     console.log(`Running MultiTransfer ${count} times!`);
     let senderBalance; let
@@ -74,7 +79,7 @@ async function multiTransferX(parrot, amount, senderKeyring, receiverAddress, co
     );
     console.log(
         `Initial Balances ... \nSender: ${parrot.formatToCurrency(senderBalance)} \nReceiver: ${
-            parrot.formatToCurrency(receiverBalance)}`,
+        parrot.formatToCurrency(receiverBalance)}`,
     );
     // Try to transfer
     console.log(
@@ -82,12 +87,12 @@ async function multiTransferX(parrot, amount, senderKeyring, receiverAddress, co
     );
 
     const td1 = { amount, to: receiverAddress };
-    const mtvec = [];
+    const multiTransferVec = [];
     for (let i = 0; i < count; i++) {
-        mtvec.push(td1);
+        multiTransferVec.push(td1);
     }
 
-    const transfer = await parrot.api.tx.multiTransfer.multiTransfer(mtvec);
+    const transfer = await parrot.api.tx.multiTransfer.multiTransfer(multiTransferVec);
 
     // Sign and send the transaction using senderKeyring
     const hash = await transfer.signAndSend(senderKeyring);
@@ -104,7 +109,7 @@ async function multiTransferX(parrot, amount, senderKeyring, receiverAddress, co
     );
     console.log(
         `Final Balances ... \nSender: ${parrot.formatToCurrency(senderBalanceNew)} \nReceiver: ${
-            parrot.formatToCurrency(receiverBalanceNew)}`,
+        parrot.formatToCurrency(receiverBalanceNew)}`,
     );
 
     const feesPaid = senderBalance - senderBalanceNew - count * amount;
@@ -119,28 +124,30 @@ async function multiTransferDemo() {
     const parrot = new ParrotInterface();
     // Init api
     await parrot.initApi();
-    // Init keyrings
+    // Init keyRings
     await parrot.initKeyRings();
-    // get keyrings
+    // get keyRings
     let ALICE; let BOB; let CHARLIE; let
         DAVE;
     [ALICE, BOB, CHARLIE, DAVE] = parrot.keyRingPairs;
 
     // amount to transfer in each transfer
-    const AMOUNT = 1000 * parrot.DOLLARS;
+    const AMOUNT = parrot.DOLLARS.mul(new BN('99'));
 
     // This script will attempt to do a normal transfer X times, followed by a multiTransfer, then compare the fees
     console.log(`This script will try to do a transfer ${RUNS} times. 
 	It will then attempt to recreate a similar transfer using MultiTransfer 
 	but in a single transaction. It will finally compare the fees charged!`);
-
     console.log('Normal transfer!');
     const fees = await transferXTimes(parrot, AMOUNT, BOB, DAVE.address, RUNS);
+
     console.log('Multi transfer!');
     const cheaperFees = await multiTransferX(parrot, AMOUNT, BOB, DAVE.address, RUNS);
-    const difrnc = fees - cheaperFees;
+
+    // now get the fee difference and print it 
+    const difference = fees - cheaperFees;
     console.log(
-        `Transfer cost ${parrot.formatToCurrency(fees)}, Multitransfer cost: ${parrot.formatToCurrency(cheaperFees)} MultiTransfer is cheaper by: ${parrot.formatToCurrency(difrnc)} for ${RUNS} transfers`,
+        `Transfer cost ${parrot.formatToCurrency(fees)}, MultiTransfer cost: ${parrot.formatToCurrency(cheaperFees)} MultiTransfer is cheaper by: ${parrot.formatToCurrency(difference)} for ${RUNS} transfers`,
     );
     process.exit(-1);
 }

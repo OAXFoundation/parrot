@@ -23,7 +23,9 @@ describe('feeDelegation', () => {
         [ALICE, BOB, CHARLIE, DAVE] = parrot.keyRingPairs;
     });
     test('fee delegation works', async () => {
-        const AMOUNT = 1000 * parrot.DOLLARS;
+        // amount to transfer in each transfer
+        const AMOUNT = parrot.DOLLARS.mul(new BN('99'));
+
         // Get everyone's start bal
         const bobBal = await parrot.getFreeBalance(BOB.address);
         const aliceBal = await parrot.getFreeBalance(ALICE.address);

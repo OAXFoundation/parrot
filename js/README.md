@@ -35,7 +35,7 @@ To launch a test simply run `jest prc20` , this will find the `prc20.spec.js` fi
 
 Current e2e test and names:
 
-- [prc20](https://github.com/OAXFoundation/parrot/blob/master/js/e2e_tests/src/prc20.spec.js) This has tests for atmoicSwap and prc20 
+- [prc20](https://github.com/OAXFoundation/parrot/blob/master/js/e2e_tests/src/prc20.spec.js) This has tests for atomicSwap and prc20 
 - [burn](https://github.com/OAXFoundation/parrot/blob/master/js/e2e_tests/src/burn.spec.js)
 - [multiTransfer](https://github.com/OAXFoundation/parrot/blob/master/js/e2e_tests/src/multiTransfer.spec.js)
 - [feeDelegation](https://github.com/OAXFoundation/parrot/blob/master/js/e2e_tests/src/feeDelegation.spec.js)

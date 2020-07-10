@@ -9,7 +9,7 @@
     "author": "OAX Foundation",
     "license": "ISC",
     "dependencies": {
-        "@polkadot/api": "1.18.1",
+        "@polkadot/api": "1.22.1",
         "@polkadot/util": "2.13.1",
         "@polkadot/util-crypto": "^2.13.1",
         "bn.js": "^5.1.1"

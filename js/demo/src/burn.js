@@ -1,9 +1,8 @@
-// BURN DEMO
-// this is a custom polkadot js api wrapper
+// ### BURN DEMO ###
+
 const { BN } = require('bn.js');
+// this is the client to interact with oax blockchain 
 const ParrotInterface = require('parrot-client');
-// // This imports the json types.json (used to define custom types)
-// const ADDITIONAL_TYPES = require('../types/types.json');
 
 // number of transfers to run
 const RUNS = 50;
@@ -17,6 +16,7 @@ async function printBurnerStats(parrot) {
     const totalIssuance = await parrot.getTotalIssuance();
     console.log(`Total Issuance: ${parrot.formatToCurrency(totalIssuance)}`);
 }
+
 // sleep blocking
 function sleep(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
@@ -27,17 +27,17 @@ async function burnDemo() {
     const parrot = new ParrotInterface();
     // Init api
     await parrot.initApi();
-    // Init keyrings
+    // Init keyRings
     await parrot.initKeyRings();
-    // get keyrings
+    // get keyRings
     let ALICE; let BOB; let CHARLIE; let
         DAVE;
     [ALICE, BOB, CHARLIE, DAVE] = parrot.keyRingPairs;
 
     // amount to transfer in each transfer
-    const AMOUNT = parrot.DOLLARS.mul(new BN('1000'));
+    const AMOUNT = parrot.DOLLARS.mul(new BN('999999'));
 
-    // Run a bunch of blokchain operations so the burn account can recieve the fees
+    // Run a bunch of transfer operations so the burn account can receive the fees
     console.log(`		This script will run a bunch of transfers from Alice to Dave ${RUNS} times,
 		this simulates the burner pot accumulating funds from fees
 		You should be able to track the Burner Pot Increasing and Decreasing in funds
