@@ -1,17 +1,18 @@
-# OAX Parrot 
+# OAX Parrot
 
-OAX Parachain 
+OAX Parachain for the Polkadot network, built using the <a href="http://substrate.dev">Substrate Framework</a>
 
-## Features 
+## Features
 
-- [x] ERC20 Standard 
-- [x] Atomic Swap (Single tx swap for ERC20 tokens) 
-- [x] Multi-Transfer 
-- [x] Automatic Fee Burn 
+- [x] ERC20 Standard
+- [x] Atomic Swap (Single tx swap for ERC20 tokens)
+- [x] Multi-Transfer
+- [x] Automatic Fee Burn
 - [x] Fee Delegation
 
-## Necessary Custom Types 
+## Necessary Custom Types <a name="custom-types"></a>
 
+We've added custom data types which you will need to customize via the [Front-End UI](#front-end)
 [Types.json](https://github.com/OAXFoundation/parrot/blob/master/js/parrot-client/src/types/types.json)
 
 ## Pre-reqs
@@ -28,46 +29,42 @@ Initialize your Wasm Build environment:
 ./scripts/init.sh
 ```
 
+## Running the Node
 
-## Running the Node 
-
-1) `cargo build` (add `--release` for production build)
-2) `./target/debug/parrot --alice --dev`
-3) If you want to re-launch the chain, you can start fresh by purging it `./target/debug/parrot purge-chain --dev`
+1. `cargo build` (add `--release` for production build)
+2. `./target/debug/parrot --alice --dev`
+3. If you want to re-launch the chain, you can start fresh by purging it `./target/debug/parrot purge-chain --dev`
 
 ## Testing Custom Pallets
 
-1) `cargo test`
-2) To run individual test, you can run `cargo test MODULE` , so if you wanted to test the burn module you could run `cargo test burn`
+1. `cargo test`
+2. To run individual test, you can run `cargo test MODULE` , so if you wanted to test the burn module you could run `cargo test burn`
 
-## FrontEnd
+## FrontEnd <a name="front-end"></a>
 
-Currently we do not have a custom front-end for this chain. You can use polkadot-js/apps as a front end for the chain without any issues. 
+Currently we do not have a custom front-end for this chain. You can use polkadot-js/apps as a front end for the chain without any issues.
 
 The last tested stable release: https://github.com/polkadot-js/apps/tree/v0.48.1
 
+The UI must be configured for our [Custom Types](#custom-types). Copy and paste the JSON into https://polkadot.js.org/apps/#/settings/developer
 
-## Client + End to End Tests + Demos 
+## Client + End to End Tests + Demos
 
-Instructions to run these tests and demos are in the [REAMDE](https://github.com/OAXFoundation/parrot/blob/master/js/README.md)
+Instructions to run these tests and demos are in the [README](https://github.com/OAXFoundation/parrot/blob/master/js/README.md)
 
-
-
-## Feature Implementations 
+## Feature Implementations
 
 [ERC20 Standard](https://github.com/OAXFoundation/parrot/blob/master/pallets/prc20/src/lib.rs)
 
 [Atomic Swap](https://github.com/OAXFoundation/parrot/blob/master/pallets/prc20/src/lib.rs#L220)
 
-[Native Multi Transfer](https://github.com/OAXFoundation/parrot/blob/master/pallets/multi_transfer/src/lib.rs) 
+[Native Multi Transfer](https://github.com/OAXFoundation/parrot/blob/master/pallets/multi_transfer/src/lib.rs)
 
 [PRC20 Multi Transfer](https://github.com/OAXFoundation/parrot/blob/master/pallets/prc20/src/lib.rs#L234)
 
 [Automatic Fee Burn](https://github.com/OAXFoundation/parrot/blob/master/pallets/burn/src/lib.rs)
 
 [Fee Delegation](https://github.com/OAXFoundation/parrot/blob/master/pallets/delegation/src/lib.rs)
-
-
 
 ## Run
 
@@ -135,7 +132,7 @@ Then run the following command to start a single node development chain.
 This command will firstly compile your code, and then start a local development network. You can also replace the default command (`cargo build --release && ./target/release/parrot --dev --ws-external`) by appending your own. A few useful ones are as follow.
 
 ```bash
-# Run Substrate node without re-compiling 
+# Run Substrate node without re-compiling
 ./scripts/docker_run.sh ./target/release/parrot --dev --ws-external
 
 # Purge the local dev chain
