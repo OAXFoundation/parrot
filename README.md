@@ -17,10 +17,10 @@ We've added custom data types which you will need to customize via the [Front-En
 
 ## Pre-reqs
 
-Install Rust:
+Install Pre-reqs :
 
 ```bash
-curl https://sh.rustup.rs -sSf | sh
+curl https://getsubstrate.io -sSf | bash -s -- --fast
 ```
 
 Initialize your Wasm Build environment:
@@ -42,11 +42,13 @@ Initialize your Wasm Build environment:
 
 ## FrontEnd <a name="front-end"></a>
 
-Currently we do not have a custom front-end for this chain. You can use polkadot-js/apps as a front end for the chain without any issues.
+Currently you can use [this](https://testnet.oax.org/#/explorer). Go to `Ssettings` -> `remote node/endpoint to connect to` -> select `Local Node`, to connect to your local chain. 
+
+This is a fork of polkadot-js/apps. You can use that too. 
 
 The last tested stable release: https://github.com/polkadot-js/apps/tree/v0.48.1
 
-The UI must be configured for our [Custom Types](#custom-types). Copy and paste the JSON into https://polkadot.js.org/apps/#/settings/developer
+If you use polkadot-js/apps UI must be configured for our [Custom Types](#custom-types). Copy and paste the JSON into https://polkadot.js.org/apps/#/settings/developer
 
 ## Client + End to End Tests + Demos
 
