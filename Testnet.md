@@ -1,7 +1,7 @@
 # OAX Testnet 
 
-[Blockchain Portal](https://polkadotnet.duckdns.org/#/explorer)
-[WSS URL](wss://polkadotnet.duckdns.org/wss)
+[Blockchain Portal](https://testnet.oax.org/#/explorer)
+[WSS URL](wss://testnet.oax.org/wss)
 
 
 ## Requesting Tokens 
@@ -31,7 +31,7 @@ as follows, passing the new WSS url for the API.
 
 ```
 // Get a new instance of the interface
-const parrot = new ParrotInterface('wss://polkadotnet.duckdns.org/wss');
+const parrot = new ParrotInterface('wss://testnet.oax.org/wss');
 ```
 
 If you do not pass anything, it will default to using a local testnet at `ws://localhost:9944`
