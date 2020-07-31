@@ -5,12 +5,12 @@ const UtilCrypto = require('@polkadot/util-crypto');
 const ADDITIONAL_TYPES = require('../types/types.json');
 
 class ParrotInterface {
-    constructor(types = ADDITIONAL_TYPES) {
-        this.types = types;
+    constructor(providerUrl='ws://localhost:9944') {
+        this.types = ADDITIONAL_TYPES;
         this.api = undefined;
         this.util = Util;
         this.utilCrypto = UtilCrypto;
-        this.providerUrl = 'ws://localhost:9944';
+        this.providerUrl = providerUrl;
         this.keyRingPairs = [];
         this.DOLLARS = new BN('1000000000000000');
         this.burnerId = 'modlpy/burns';
