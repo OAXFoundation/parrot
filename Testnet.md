@@ -6,7 +6,7 @@
 
 ## Requesting Tokens 
 
-Please send an email to wayland@oax.org to request for OAX Testnet tokens. The email should be in the following format. 
+Please send an email to info@oax.org to request for OAX Testnet tokens. The email should be in the following format. 
 
 `Subject`: Requesting OAX Testnet Tokens 
 `Body`: Address: 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
