@@ -42,9 +42,7 @@ Initialize your Wasm Build environment:
 
 ## FrontEnd <a name="front-end"></a>
 
-Currently you can use [this](https://testnet.oax.org/#/explorer). Go to `Ssettings` -> `remote node/endpoint to connect to` -> select `Local Node`, to connect to your local chain. 
-
-This is a fork of polkadot-js/apps. You can use that too. 
+You can use polkadot-js/apps. 
 
 The last tested stable release: https://github.com/polkadot-js/apps/tree/v0.48.1
 
