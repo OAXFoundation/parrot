@@ -14,6 +14,18 @@ function sleep(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+function prettyPrintDelegatedTransfer(dtd, parrot) {
+    console.log(`SignedDTD: \n 
+    Signature: ${dtd.signature} \n
+    Signer: ${dtd.signer} \n
+    Transfer: \n
+        amount: ${parrot.formatToCurrency(dtd.transfer.amount)} \n
+        to: ${dtd.transfer.to} \n
+        nonce: ${dtd.transfer.nonce}
+        `);
+}
+
+
 async function getAliceBobBalStats(parrot, aliceAddress, bobAddress, charlieAddress) {
     const balAlice = await parrot.getFreeBalance(aliceAddress);
     const balBob = await parrot.getFreeBalance(bobAddress);
@@ -59,7 +71,8 @@ async function feeDelegationDemo() {
     const signedDtd = await parrot.createSignedDtd(dtd, signature, BOB.address);
     console.log('Bob has created a signedDelegatedTransferDetails that he can share with a fee delegator');
 
-    console.log(` SignedDTD: \n Transfer: ${signedDtd.transfer}\n Signature: ${signedDtd.signature}\n Signer: ${signedDtd.signer}`);
+    prettyPrintDelegatedTransfer(signedDtd, parrot)
+    // console.log(` SignedDTD: \n Transfer: ${signedDtd.transfer}\n Signature: ${signedDtd.signature}\n Signer: ${signedDtd.signer}`);
 
     const ans = await askQuestion('\n \nDo you want to broadcast this manually? Please type Y or N:   ');
     if (ans.toLowerCase() === 'n') {
