@@ -4,7 +4,7 @@
 
 For Chrome, here is the Chrome extension for the Polkadot.js which integrates your Polkadot wallets within your browser.
 
-[Chome Polkadot.js extension](https://github.com/OAXFoundation/parrot/blob/master/Testnet.md)
+[Chome Polkadot.js extension](https://chrome.google.com/webstore/detail/polkadot%7Bjs%7D-extension/mopnmbcafieddcagagdcbnhejhlodfdd/reviews)
 
 [Firefox Polkadot.js addon](https://addons.mozilla.org/en-US/firefox/addon/polkadot-js-extension/)
 
